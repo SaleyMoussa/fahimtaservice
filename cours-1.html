@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fahimta – Plans de cours en ligne</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mute:#56627a;--line:#dbe2ee;--a:#2b579a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 Figtree,system-ui,sans-serif}
+.w{max-width:820px;margin:0 auto;padding:28px 20px 48px}
+h1,h2{font-family:"Bricolage Grotesque",Figtree,sans-serif;line-height:1.1;margin:0}
+h1{font-size:clamp(30px,6vw,44px);font-weight:800}
+.sub{color:var(--mute);margin:12px 0 28px}
+details{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;margin-bottom:12px}
+summary{cursor:pointer;padding:16px 18px;display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+summary:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+summary b{font:800 21px "Bricolage Grotesque",sans-serif;color:var(--c)}
+summary span{color:var(--mute);font-size:14px}
+.in{padding:0 18px 18px}
+.in p{margin:0 0 10px;color:var(--mute);font-size:15px}
+.m{border-top:1px solid var(--line);padding:10px 0}
+.m b{display:block;font-size:16px}.m span{color:var(--mute);font-size:15px}
+.liv{margin-top:10px;font-weight:600;font-size:15px}
+</style>
+</head>
+<body>
+<div class="w">
+<p><a href="index.html" style="color:inherit;font-weight:600">← Retour au site Fahimta</a></p>
+<h1>Plans de cours en ligne</h1>
+<p class="sub">Fahimta Service Informatique. Chaque cours comprend des vidéos courtes, des fichiers d'exercices et un projet final. Touchez un cours pour voir son programme.</p>
+<p><b>Cours complets disponibles :</b> <a href="cours-word.html">Word</a>, <a href="cours-excel.html">Excel</a>, <a href="cours-powerpoint.html">PowerPoint</a></p>
+<div id="L"></div>
+</div>
+<script>
+var C=[
+["Word","Débutant","10 000 FCFA / mois","#2b579a","Écrire et mettre en forme des documents professionnels.",[
+["Prise en main","Interface, saisie, enregistrer et ouvrir, mise en forme du texte"],
+["Mise en page","Marges, orientation, en-têtes et pieds de page, numéros de page"],
+["Documents longs","Styles, sommaire automatique, notes de bas de page, légendes"],
+["Tableaux et images","Insérer et mettre en forme, publipostage"]],"Un CV et un rapport de 10 pages avec sommaire"],
+["Excel","Débutant à intermédiaire","10 000 FCFA / mois","#1d7a46","Calculer, analyser et présenter des données.",[
+["Bases","Cellules, formats, formules simples, recopie"],
+["Fonctions essentielles","SOMME, MOYENNE, SI, NB.SI, RECHERCHEV"],
+["Graphiques","Choisir le bon graphique, mise en forme conditionnelle"],
+["Tableaux croisés dynamiques","Résumer et filtrer de grandes tables"]],"Un suivi de stock ou un budget automatisé"],
+["PowerPoint","Débutant","10 000 FCFA / mois","#c8501f","Créer des présentations claires et convaincantes.",[
+["Structurer","Plan, masque des diapositives, thèmes"],
+["Contenu visuel","Images, schémas, graphiques, tableaux"],
+["Animations et transitions","Les utiliser avec mesure"],
+["Présenter","Mode présentateur, export PDF, impression"]],"Une présentation de 10 diapositives"],
+["Windows","Débutant","10 000 FCFA / mois","#0f78d4","Utiliser et entretenir son ordinateur.",[
+["Bureau et fichiers","Dossiers, copier, déplacer, rechercher"],
+["Paramètres","Comptes, mises à jour, imprimantes, réseau"],
+["Sécurité","Antivirus, mots de passe, sauvegarde"],
+["Dépannage de base","Lenteurs, logiciels qui plantent, restauration"]],"Une checklist d'entretien de son ordinateur"],
+["ArcGIS","Débutant à intermédiaire","Analyse hydrologique : 30 000 FCFA","#2e7d6b","Produire des cartes et des analyses spatiales.",[
+["Base et fichiers vecteurs","Interface, couches, shapefiles, table attributaire"],
+["Projections et géoréférencement","Systèmes de coordonnées, calage d'images"],
+["Carte d'occupation du sol","Classification, validation, mise en page de la carte"],
+["Analyse hydrologique","MNT, sens d'écoulement, réseau et bassins versants"],
+["Plan de masse et bases de données spatiales","Géodatabase, création et édition d'entités"]],"Une carte d'occupation du sol et une carte de bassin versant"],
+["QGIS","Débutant à intermédiaire","Même programme qu'ArcGIS, en logiciel libre","#5b9a2f","Les mêmes analyses avec un logiciel gratuit.",[
+["Base et fichiers vecteurs","Interface, couches, GeoPackage, table attributaire"],
+["Projections et géoréférencement","Systèmes de coordonnées, calage d'images"],
+["Carte d'occupation du sol","Classification, validation, mise en page"],
+["Analyse hydrologique","MNT, écoulement, bassins versants"],
+["Plan de masse et bases de données spatiales","Création et édition d'entités"]],"Les mêmes cartes que le cours ArcGIS"],
+["Collecte et analyse de données","Intermédiaire","25 000 FCFA","#0f78d4","De l'enquête de terrain aux résultats.",[
+["KoboToolbox","Créer un formulaire, déployer, collecter sur téléphone, exporter"],
+["Nettoyage avec Excel","Doublons, valeurs manquantes, codage"],
+["SPSS : bases","Importer, variables, statistiques descriptives"],
+["SPSS : analyses","Tableaux croisés, tests, graphiques"]],"Une enquête complète, du formulaire au rapport de résultats"],
+["IA responsable en rédaction scientifique","Tous niveaux","20 000 FCFA","#7a4fb5","Utiliser l'IA sans tricher ni se tromper.",[
+["Comprendre l'IA","Ce qu'elle sait faire, ses erreurs et ses inventions"],
+["Bien formuler ses demandes","Chercher, reformuler, structurer ses idées"],
+["Vérifier et citer","Contrôler les sources, éviter le plagiat"],
+["Éthique et règles","Règles des universités, déclarer son usage"]],"Une fiche personnelle de bonnes pratiques"],
+["Zotero","Débutant","15 000 FCFA","#c8501f","Gérer ses références sans effort.",[
+["Installation","Zotero, connecteur de navigateur, compte"],
+["Collecter","Ajouter des articles, PDF, livres"],
+["Organiser","Dossiers, étiquettes, doublons"],
+["Citer dans Word","Module Word, styles APA et autres, bibliographie automatique"]],"Une bibliographie automatique dans un document Word"],
+["Analyse bibliométrique","Intermédiaire","20 000 FCFA","#2b579a","Cartographier la littérature scientifique.",[
+["Notions de base","Bibliométrie, indicateurs, bases de données"],
+["Récupérer les données","Export depuis Scopus, Web of Science, OpenAlex"],
+["VOSviewer","Cartes de mots-clés, de co-auteurs, de citations"],
+["Interpréter et rédiger","Lire les cartes, les intégrer dans un article"]],"Une cartographie bibliométrique sur un thème choisi"]
+];
+var o='';
+C.forEach(function(c){
+o+='<details style="--c:'+c[3]+'"><summary><b>'+c[0]+'</b><span>'+c[1]+' · '+c[2]+'</span></summary><div class="in"><p>'+c[4]+'</p>';
+c[5].forEach(function(m,i){o+='<div class="m"><b>Module '+(i+1)+' : '+m[0]+'</b><span>'+m[1]+'</span></div>'});
+o+='<div class="liv">Projet final : '+c[6]+'</div></div></details>';
+});
+document.getElementById('L').innerHTML=o;
+</script>
+</body>
+</html>

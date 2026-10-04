@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cours Excel – Fahimta Service Informatique</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mute:#56627a;--line:#dbe2ee;--c:#1d7a46;--ok:#1d7a46;--ko:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a;--c:#4cc080;--ok:#4cc080;--ko:#f28b82}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a;--c:#4cc080;--ok:#4cc080;--ko:#f28b82}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 Figtree,system-ui,sans-serif}
+.w{max-width:780px;margin:0 auto;padding:28px 20px 48px}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,sans-serif;line-height:1.15;margin:0}
+h1{font-size:clamp(30px,6vw,42px);font-weight:800;color:var(--c)}
+.sub{color:var(--mute);margin:10px 0 26px}
+details.mod{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px;margin-bottom:14px}
+details.mod>summary{cursor:pointer;padding:16px 18px;font:800 21px "Bricolage Grotesque",sans-serif}
+summary:focus-visible,button:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.in{padding:0 18px 18px}
+h3{font-size:18px;margin:18px 0 6px}
+ol{margin:6px 0;padding-left:22px}li{margin:3px 0}
+.ex{background:var(--bg);border:1px dashed var(--c);border-radius:6px;padding:12px 14px;margin-top:16px}
+.ex b{color:var(--c)}
+.q{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.q p{margin:0 0 8px;font-weight:600}
+.o{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font:inherit;font-size:16px;cursor:pointer}
+.o.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--card))}
+.o.ko{border-color:var(--ko);background:color-mix(in srgb,var(--ko) 18%,var(--card))}
+.e{font-size:15px;color:var(--mute);margin-top:6px}
+.fin{background:var(--c);color:#fff;border-radius:6px;padding:18px;margin-top:20px}
+.fin h2{font-size:22px;margin-bottom:6px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fin{color:#0e1626}}
+:root[data-theme="dark"] .fin{color:#0e1626}
+</style>
+</head>
+<body>
+<div class="w">
+<p><a href="index.html" style="color:inherit;font-weight:600">← Retour au site Fahimta</a></p>
+<h1>Cours Excel</h1>
+<p class="sub">Fahimta Service Informatique · 4 modules, du tableau simple au tableau croisé dynamique. Suivez les leçons dans l'ordre, faites l'exercice, puis répondez au quiz. Les menus et fonctions indiqués sont ceux d'Excel en français.</p>
+<div id="K" class="ex"><h2 style="font-size:22px;margin-bottom:6px">Cours réservé aux apprenants inscrits</h2><p>Entrez le code d'accès reçu après votre inscription et votre paiement.</p>
+<form id="G"><input id="C" autocomplete="off" autocapitalize="characters" placeholder="Code d'accès" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:6px;font:inherit;background:var(--card);color:var(--ink)">
+<button class="o" type="submit" style="text-align:center;font-weight:600;margin-top:10px">Ouvrir le cours</button></form>
+<p id="X" class="e" style="color:var(--ko)" role="alert"></p>
+<p class="e">Pas de code ? <a href="https://wa.me/22798279512?text=Bonjour%2C%20je%20souhaite%20un%20code%20d%27acc%C3%A8s%20pour%20le%20cours%20%3A%20Excel" style="color:inherit">Contactez-nous sur WhatsApp</a>.</p></div>
+<div id="L"></div>
+<div class="fin" id="F" hidden><h2>Projet final</h2>Créez un suivi de stock : feuilles Entrées et Sorties, stock calculé par formule, alerte avec SI quand le stock passe sous le seuil, mise en forme conditionnelle, un graphique et un tableau croisé dynamique des sorties par produit. Envoyez le fichier à Fahimta pour une correction.</div>
+</div>
+<script>
+var E="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";
+function R(M){var o='';
+M.forEach(function(m,mi){
+o+='<details class="mod"'+(mi==0?' open':'')+'><summary>'+m.t+'</summary><div class="in">';
+m.L.forEach(function(l,li){o+='<h3>Leçon '+(mi+1)+'.'+(li+1)+' : '+l[0]+'</h3><ol>'+l[1].map(function(s){return '<li>'+s+'</li>'}).join('')+'</ol>'});
+o+='<div class="ex"><b>Exercice pratique.</b> '+m.ex+'</div>';
+m.Q.forEach(function(q,qi){
+o+='<div class="q" data-a="'+q[2]+'"><p>Quiz '+(qi+1)+' : '+q[0]+'</p>'+q[1].map(function(x,xi){return '<button class="o" data-i="'+xi+'">'+x+'</button>'}).join('')+'<div class="e" hidden>'+q[3]+'</div></div>';
+});
+o+='</div></details>';
+});
+var L=document.getElementById('L');L.innerHTML=o;
+L.addEventListener('click',function(e){
+var b=e.target.closest('.o');if(!b)return;
+var q=b.closest('.q');if(q.dataset.done)return;q.dataset.done=1;
+var a=+q.dataset.a;
+q.querySelectorAll('.o').forEach(function(x){if(+x.dataset.i==a)x.classList.add('ok')});
+if(+b.dataset.i!=a)b.classList.add('ko');
+q.querySelector('.e').hidden=false;
+});
+}
+var D=async function(c){var r=Uint8Array.from(atob(E),function(x){return x.charCodeAt(0)});var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(c),'PBKDF2',false,['deriveKey']);var k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:r.slice(0,16),iterations:150000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);var p=await crypto.subtle.decrypt({name:'AES-GCM',iv:r.slice(16,28)},k,r.slice(28));return new TextDecoder().decode(p)};
+document.getElementById('G').addEventListener('submit',function(e){e.preventDefault();var x=document.getElementById('X');x.textContent='Vérification…';
+D(document.getElementById('C').value.trim().toUpperCase()).then(function(t){R(new Function(t+';return M;')());document.getElementById('K').hidden=true;document.getElementById('F').hidden=false;x.textContent=''}).catch(function(){x.textContent='Code incorrect. Vérifiez et réessayez.'})});
+</script>
+</body>
+</html>
