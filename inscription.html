@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inscription – Fahimta Service Informatique</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mute:#56627a;--line:#dbe2ee;--c:#2b579a;--ok:#1d7a46;--ko:#b3261e;--btn:#14213d;--btnt:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a;--c:#6d9be8;--ok:#4cc080;--ko:#f28b82;--btn:#eaf0fb;--btnt:#0e1626}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a;--c:#6d9be8;--ok:#4cc080;--ko:#f28b82;--btn:#eaf0fb;--btnt:#0e1626}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 Figtree,system-ui,sans-serif}
+.w{max-width:640px;margin:0 auto;padding:24px 20px 48px}
+h1,h2{font-family:"Bricolage Grotesque",Figtree,sans-serif;line-height:1.15;margin:0}
+h1{font-size:clamp(28px,6vw,38px);font-weight:800}
+h2{font-size:21px;color:var(--c);margin:26px 0 12px}
+.sub{color:var(--mute);margin:10px 0 0}
+a{color:inherit}
+form{display:grid;gap:14px}
+label,fieldset{display:grid;gap:5px;font-weight:500;font-size:15px;border:0;padding:0;margin:0}
+input,select{padding:12px;border:1px solid var(--line);border-radius:6px;font:inherit;background:var(--card);color:var(--ink);width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.r{display:flex;gap:10px;flex-wrap:wrap}
+.r label{display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:var(--card);padding:12px 16px;border-radius:6px}
+.r input{width:auto}
+.fee{background:var(--card);border:1px dashed var(--c);border-radius:6px;padding:14px}
+.fee b{color:var(--c);font-size:19px}
+.ck{display:flex!important;gap:10px;align-items:flex-start;font-weight:400}.ck input{width:auto;margin-top:5px}
+.btn{background:var(--btn);color:var(--btnt);border:0;border-radius:8px;padding:14px 22px;font:600 17px Figtree,sans-serif;cursor:pointer}
+#M{padding:14px;border-radius:6px;font-weight:600}
+.ok{background:color-mix(in srgb,var(--ok) 18%,var(--card));border:1px solid var(--ok)}
+.ko{background:color-mix(in srgb,var(--ko) 18%,var(--card));border:1px solid var(--ko)}
+</style>
+</head>
+<body>
+<div class="w">
+<p><a href="index.html" style="font-weight:600">← Retour au site Fahimta</a></p>
+<h1>Inscription à une formation</h1>
+<p class="sub">Remplissez ce formulaire. Notre équipe vous contactera pour confirmer votre inscription.</p>
+<form id="F">
+<h2>1. Vos informations</h2>
+<label>Nom<input id="nom" required autocomplete="family-name"></label>
+<label>Prénom<input id="prenom" required autocomplete="given-name"></label>
+<label>Sexe<select id="sexe" required><option value="">Choisir</option><option>Masculin</option><option>Féminin</option></select></label>
+<label>Niveau de formation actuel<select id="etudes" required><option value="">Choisir</option><option>Sans diplôme</option><option>Primaire</option><option>Collège</option><option>Lycée</option><option>Baccalauréat</option><option>Licence</option><option>Master</option><option>Doctorat</option><option>Autre</option></select></label>
+<label>Date de naissance<input id="dn" type="date" required></label>
+<label>Lieu de naissance<input id="ln" required></label>
+<label>Nationalité (pays d'origine)<input id="nat" required></label>
+<label>Téléphone / WhatsApp<input id="tel" type="tel" required autocomplete="tel"></label>
+<label>E-mail (facultatif)<input id="mail" type="email" autocomplete="email"></label>
+
+<h2>2. Formation souhaitée</h2>
+<label>Formation<select id="form" required><option value="">Choisir</option><option>Word</option><option>Excel</option><option>PowerPoint</option><option>Windows</option><option>ArcGIS</option><option>QGIS</option><option>Collecte et analyse de données (KoboToolbox, Excel, SPSS)</option><option>IA responsable en rédaction scientifique</option><option>Zotero</option><option>Analyse bibliométrique (VOSviewer)</option></select></label>
+<label>Niveau souhaité<select id="niv" required><option value="">Choisir</option><option>Débutant</option><option>Intermédiaire</option><option>Avancé</option></select></label>
+<label>Durée souhaitée (en jours)<input id="duree" type="number" min="1" max="365" inputmode="numeric" required></label>
+<label>Date de début probable<input id="debut" type="date" required></label>
+<fieldset><legend style="margin-bottom:5px">Mode de formation</legend><div class="r"><label><input type="radio" name="mode" value="En ligne" required> En ligne</label><label><input type="radio" name="mode" value="En présentiel"> En présentiel</label></div></fieldset>
+
+<h2>3. Frais de formation et validation</h2>
+<div class="fee">Tarif indicatif : <b id="fr">choisissez une formation</b><br><span style="color:var(--mute);font-size:15px">Le montant final est confirmé par notre équipe. Le paiement se fait par NITA ou AMANA au +227 98 27 95 12.</span></div>
+<label class="ck"><input id="ok" type="checkbox" required> J'accepte que mes informations soient utilisées pour traiter mon inscription.</label>
+<button class="btn" type="submit" id="B">Valider mon inscription</button>
+<div id="M" hidden role="status"></div>
+</form>
+</div>
+<script src="config.js"></script>
+<script>
+var P={"Word":"10 000 FCFA / mois","Excel":"10 000 FCFA / mois","PowerPoint":"10 000 FCFA / mois","Windows":"10 000 FCFA / mois","ArcGIS":"à partir de 30 000 FCFA","QGIS":"à partir de 30 000 FCFA","Zotero":"15 000 FCFA","IA responsable en rédaction scientifique":"20 000 FCFA","Analyse bibliométrique (VOSviewer)":"20 000 FCFA","Collecte et analyse de données (KoboToolbox, Excel, SPSS)":"25 000 FCFA"};
+var $=function(i){return document.getElementById(i)};
+$('form').addEventListener('change',function(){$('fr').textContent=P[this.value]||'choisissez une formation'});
+$('F').addEventListener('submit',function(e){
+e.preventDefault();
+var d={nom:$('nom').value.trim(),prenom:$('prenom').value.trim(),sexe:$('sexe').value,niveau_etudes:$('etudes').value,date_naissance:$('dn').value,lieu_naissance:$('ln').value.trim(),nationalite:$('nat').value.trim(),telephone:$('tel').value.trim(),email:$('mail').value.trim(),formation:$('form').value,niveau_souhaite:$('niv').value,duree_jours:+$('duree').value,date_debut:$('debut').value,mode:document.querySelector('input[name=mode]:checked').value,frais:P[$('form').value]||''};
+var M=$('M');M.hidden=false;M.className='';M.textContent='Envoi en cours…';$('B').disabled=true;
+var wa=function(){var t='Inscription : '+d.prenom+' '+d.nom+' ('+d.sexe+'), né(e) le '+d.date_naissance+' à '+d.lieu_naissance+', '+d.nationalite+'. Niveau actuel : '+d.niveau_etudes+'. Formation : '+d.formation+' ('+d.niveau_souhaite+'), '+d.duree_jours+' jours, début '+d.date_debut+', '+d.mode+'. Tél : '+d.telephone;window.open('https://wa.me/22798279512?text='+encodeURIComponent(t),'_blank')};
+if(!window.SB_URL){wa();M.className='ok';M.textContent='Votre demande est prête : envoyez-la sur WhatsApp pour la valider.';$('B').disabled=false;return}
+fetch(window.SB_URL+'/rest/v1/inscriptions',{method:'POST',headers:{apikey:window.SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(d)})
+.then(function(r){if(!r.ok)throw new Error(r.status);M.className='ok';M.textContent='Merci '+d.prenom+' ! Votre inscription est enregistrée. Nous vous contacterons au '+d.telephone+'.';$('F').reset();$('fr').textContent='choisissez une formation'})
+.catch(function(){M.className='ko';M.textContent='L\'envoi a échoué. Vérifiez votre connexion et réessayez, ou envoyez votre demande par WhatsApp.';var a=document.createElement('button');a.type='button';a.className='btn';a.style.marginTop='10px';a.textContent='Envoyer par WhatsApp';a.onclick=wa;M.appendChild(document.createElement('br'));M.appendChild(a)})
+.finally(function(){$('B').disabled=false});
+});
+</script>
+</body>
+</html>

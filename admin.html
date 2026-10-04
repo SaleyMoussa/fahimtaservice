@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Gestion des inscriptions – Fahimta</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mute:#56627a;--line:#dbe2ee;--c:#2b579a;--ko:#b3261e;--btn:#14213d;--btnt:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a;--c:#6d9be8;--ko:#f28b82;--btn:#eaf0fb;--btnt:#0e1626}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a;--c:#6d9be8;--ko:#f28b82;--btn:#eaf0fb;--btnt:#0e1626}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Figtree,system-ui,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:22px 18px 48px}
+h1{font:800 clamp(26px,5vw,34px) "Bricolage Grotesque",sans-serif;margin:0 0 14px}
+input,select{padding:11px;border:1px solid var(--line);border-radius:6px;font:inherit;background:var(--card);color:var(--ink);width:100%}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.btn{background:var(--btn);color:var(--btnt);border:0;border-radius:8px;padding:11px 18px;font:600 15px Figtree,sans-serif;cursor:pointer}
+.btn.o{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+#L{display:grid;gap:12px;max-width:380px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.bar input{flex:1;min-width:160px}
+.card{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:6px;padding:14px;margin-bottom:10px}
+.card h3{margin:0;font-size:18px}.card p{margin:2px 0;color:var(--mute);font-size:15px}
+.card details{margin-top:8px;font-size:15px}summary{cursor:pointer;font-weight:600}
+.card dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:8px 0}.card dt{color:var(--mute)}.card dd{margin:0}
+.card select{margin-top:8px}
+#E{color:var(--ko);font-weight:600}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>Gestion des inscriptions</h1>
+<form id="L"><label>E-mail<input id="u" type="email" required autocomplete="username"></label><label>Mot de passe<input id="p" type="password" required autocomplete="current-password"></label><button class="btn" type="submit">Se connecter</button></form>
+<p id="E" role="alert"></p>
+<div id="A" hidden>
+<div class="bar"><input id="q" type="search" placeholder="Rechercher un nom, une formation…"><button class="btn o" id="X" type="button">Exporter CSV</button><button class="btn o" id="O" type="button">Déconnexion</button></div>
+<p id="N" style="color:var(--mute)"></p>
+<div id="R"></div>
+</div>
+</div>
+<script src="config.js"></script>
+<script>
+var $=function(i){return document.getElementById(i)},T=null,D=[];
+var S=['Nouvelle','Contactée','Payée','Inscrite','Annulée'];
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function H(){return {apikey:window.SB_KEY,Authorization:'Bearer '+T,'Content-Type':'application/json'}}
+try{T=sessionStorage.getItem('t')}catch(e){}
+if(!window.SB_URL){$('E').textContent='Le fichier config.js n\'est pas encore rempli : renseignez SB_URL et SB_KEY.';$('L').hidden=true}
+$('L').addEventListener('submit',function(e){e.preventDefault();$('E').textContent='Connexion…';
+fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:$('u').value.trim(),password:$('p').value})})
+.then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){T=j.access_token;try{sessionStorage.setItem('t',T)}catch(e){}$('E').textContent='';$('p').value='';load()})
+.catch(function(){$('E').textContent='E-mail ou mot de passe incorrect.'})});
+function out(){T=null;try{sessionStorage.removeItem('t')}catch(e){}$('A').hidden=true;$('L').hidden=!window.SB_URL;$('R').innerHTML=''}
+$('O').onclick=out;
+function load(){fetch(SB_URL+'/rest/v1/inscriptions?select=*&order=created_at.desc',{headers:H()}).then(function(r){if(r.status==401||r.status==403)throw 'auth';if(!r.ok)throw 0;return r.json()}).then(function(j){D=j;$('L').hidden=true;$('A').hidden=false;draw()}).catch(function(x){out();$('E').textContent=x=='auth'?'Session expirée. Reconnectez-vous.':'Impossible de charger les inscriptions.'})}
+function draw(){var q=$('q').value.toLowerCase(),L=D.filter(function(d){return JSON.stringify(d).toLowerCase().indexOf(q)>-1});
+$('N').textContent=L.length+' inscription(s)';
+$('R').innerHTML=L.map(function(d){return '<div class="card"><h3>'+esc(d.prenom)+' '+esc(d.nom)+'</h3><p>'+esc(d.formation)+' · '+esc(d.niveau_souhaite)+' · '+esc(d.mode)+'</p><p>'+esc(d.duree_jours)+' jours · début '+esc(d.date_debut)+' · reçue le '+esc((d.created_at||'').slice(0,10))+'</p><p><a href="tel:'+esc(d.telephone)+'" style="color:inherit">'+esc(d.telephone)+'</a></p>'+
+'<details><summary>Détails</summary><dl><dt>Sexe</dt><dd>'+esc(d.sexe)+'</dd><dt>Niveau actuel</dt><dd>'+esc(d.niveau_etudes)+'</dd><dt>Naissance</dt><dd>'+esc(d.date_naissance)+' à '+esc(d.lieu_naissance)+'</dd><dt>Nationalité</dt><dd>'+esc(d.nationalite)+'</dd><dt>E-mail</dt><dd>'+esc(d.email)+'</dd><dt>Frais</dt><dd>'+esc(d.frais)+'</dd></dl></details>'+
+'<select data-id="'+d.id+'" aria-label="Statut">'+S.map(function(s){return '<option'+(s==d.statut?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'}).join('')}
+$('q').addEventListener('input',draw);
+$('R').addEventListener('change',function(e){var s=e.target;if(!s.dataset.id)return;fetch(SB_URL+'/rest/v1/inscriptions?id=eq.'+s.dataset.id,{method:'PATCH',headers:H(),body:JSON.stringify({statut:s.value})}).then(function(r){if(!r.ok)throw 0;D.forEach(function(d){if(d.id==s.dataset.id)d.statut=s.value})}).catch(function(){alert('Modification non enregistrée.')})});
+$('X').onclick=function(){var k=['created_at','statut','nom','prenom','sexe','niveau_etudes','date_naissance','lieu_naissance','nationalite','telephone','email','formation','niveau_souhaite','duree_jours','date_debut','mode','frais'];
+var c=[k.join(',')].concat(D.map(function(d){return k.map(function(x){return '"'+String(d[x]==null?'':d[x]).replace(/"/g,'""')+'"'}).join(',')})).join('\n');
+var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+c],{type:'text/csv'}));a.download='inscriptions-fahimta.csv';a.click()};
+if(window.SB_URL&&T)load();
+</script>
+</body>
+</html>
