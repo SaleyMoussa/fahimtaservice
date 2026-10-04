@@ -54,7 +54,7 @@ footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 <header class="hero">
 <div>
 <h1>Fahimta Service Informatique</h1>
-<p>Formations en bureautique, cartographie, analyse de données et rédaction scientifique, en ligne et en présentiel. Vous satisfaire est notre priorité.</p>
+<p>Formation informatique, reprographie et vente de fournitures, assistance technique : en ligne et en présentiel. Vous satisfaire est notre priorité.</p>
 <div class="cta"><a class="btn" href="#formations">Voir les formations</a><a class="btn o" href="#contact">S'inscrire</a></div>
 </div>
 <div class="sheet" aria-hidden="true">
@@ -68,8 +68,18 @@ footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 </div>
 </header>
 
+<section id="domaines">
+<h2>Nos trois domaines</h2>
+<p class="sub">Choisissez ce dont vous avez besoin.</p>
+<div class="grid">
+<a class="c" href="#formations" style="--a:var(--word);text-decoration:none;color:inherit"><h3>1. Formation informatique et logiciels spécialisés</h3><ul><li>Bureautique : Word, Excel, PowerPoint, Windows</li><li>Cartographie : ArcGIS, QGIS</li><li>Données, IA, Zotero, VOSviewer</li></ul><b style="color:var(--a)">Voir les formations →</b></a>
+<a class="c" href="#reprographie" style="--a:var(--ppt);text-decoration:none;color:inherit"><h3>2. Reprographie et vente de fournitures et produits</h3><ul><li>Reprographie</li><li>Fournitures scolaires</li><li>Ordinateurs et accessoires</li></ul><b style="color:var(--a)">Voir les produits →</b></a>
+<a class="c" href="#assistance" style="--a:var(--excel);text-decoration:none;color:inherit"><h3>3. Assistance technique en ligne et en présentiel</h3><ul><li>Maintenance informatique</li><li>Accompagnement en rédaction scientifique</li><li>Corrections et analyses de documents</li></ul><b style="color:var(--a)">Voir l'assistance →</b></a>
+</div>
+</section>
+
 <section id="formations">
-<h2>Nos formations</h2>
+<h2>1. Formation informatique et logiciels spécialisés</h2>
 <p class="sub">En ligne ou en présentiel, avec des exercices pratiques.</p>
 <div class="grid">
 
@@ -94,24 +104,39 @@ footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 </div>
 </section>
 
-<section>
-<h2>Accompagnement et autres services</h2>
-<p class="sub">Tarifs à discuter selon votre besoin.</p>
-<div class="svc">
-<div><b>Rédaction scientifique</b><span>Accompagnement en Licence, Master et Doctorat.</span></div>
-<div><b>Corrections et analyses</b><span>Rapports, thèses, mémoires de Licence ou de Master.</span></div>
-<div><b>Données climatiques</b><span>Acquisition et analyse.</span></div>
-<div><b>Maintenance informatique</b><span>Dépannage et entretien.</span></div>
-<div><b>Vente de matériel</b><span>Ordinateurs et accessoires.</span></div>
-<div><b>Reprographie</b><span>Impression et copie.</span></div>
-</div>
-</section>
-
 <section id="cours">
 <h2>Accéder aux cours en ligne</h2>
 <p class="sub">Les plans de cours sont en accès libre. Les cours complets (leçons, exercices, quiz) sont réservés aux apprenants inscrits, avec un code d'accès.</p>
 <div class="cta"><a class="btn" href="cours.html">Voir les plans de cours</a><a class="btn o" href="cours-word.html">Cours Word (code)</a><a class="btn o" href="cours-excel.html">Cours Excel (code)</a><a class="btn o" href="cours-powerpoint.html">Cours PowerPoint (code)</a></div>
 </section>
+
+<section id="reprographie">
+<h2>2. Reprographie et vente de fournitures et produits</h2>
+<p class="sub">Passez nous voir ou contactez-nous pour connaître les produits disponibles et les prix.</p>
+<div class="svc">
+<div><b>Reprographie</b><span>Impression et photocopie.</span></div>
+<div><b>Fournitures scolaires</b><span>Cahiers, stylos et articles pour l'école.</span></div>
+<div><b>Ordinateurs et accessoires</b><span>Vente de matériel informatique.</span></div>
+<div><b>Autres produits</b><span>Demandez-nous la liste.</span></div>
+</div>
+</section>
+
+<section id="assistance">
+<h2>3. Assistance technique en ligne et en présentiel</h2>
+<p class="sub">Nous intervenons à distance ou sur place. Tarifs à discuter selon votre besoin.</p>
+<div class="svc">
+<div><b>Maintenance informatique</b><span>Dépannage et entretien de votre matériel.</span></div>
+<div><b>Rédaction scientifique</b><span>Accompagnement en Licence, Master et Doctorat.</span></div>
+<div><b>Corrections et analyses</b><span>Rapports, thèses, mémoires de Licence ou de Master.</span></div>
+<div><b>Données climatiques</b><span>Acquisition et analyse.</span></div>
+</div>
+</section>
+
+
+
+
+
+
 
 <section>
 <h2>Modes de paiement</h2>
@@ -127,7 +152,7 @@ footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 <p class="sub">Choisissez votre formation, votre demande part sur WhatsApp.</p>
 <form id="f">
 <label>Nom complet<input id="n" required autocomplete="name"></label>
-<label>Formation ou service<select id="t"><option>Informatique bureautique</option><option>Cartographie ArcGIS</option><option>Cartographie QGIS</option><option>Collecte et analyse de données</option><option>IA responsable en rédaction scientifique</option><option>Zotero</option><option>VOSviewer</option><option>Accompagnement en rédaction scientifique</option><option>Correction de documents</option><option>Autre service</option></select></label>
+<label>Formation ou service<select id="t"><option>Informatique bureautique</option><option>Cartographie ArcGIS</option><option>Cartographie QGIS</option><option>Collecte et analyse de données</option><option>IA responsable en rédaction scientifique</option><option>Zotero</option><option>VOSviewer</option><option>Accompagnement en rédaction scientifique</option><option>Correction de documents</option><option>Reprographie</option><option>Fournitures scolaires</option><option>Ordinateurs et accessoires</option><option>Assistance technique</option><option>Autre service</option></select></label>
 <label>Mode<select id="m"><option>En ligne</option><option>En présentiel</option></select></label>
 <button class="btn" type="submit">Envoyer ma demande</button>
 </form>
