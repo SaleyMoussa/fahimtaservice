@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espace apprenant – Fahimta Service Informatique</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="w">
+<p><a href="index.html" style="font-weight:600">← Retour au site Fahimta</a></p>
+<h1>Espace apprenant</h1>
+<div id="AU">
+<form id="F" class="g">
+<div id="SU" hidden><label>Nom<input id="nom" autocomplete="family-name"></label><label>Prénom<input id="pre" autocomplete="given-name"></label></div>
+<label>E-mail<input id="em" type="email" required autocomplete="username"></label>
+<label>Mot de passe<input id="pw" type="password" minlength="6" required autocomplete="current-password"></label>
+<button class="btn" id="GO" type="submit">Se connecter</button>
+<button class="btn o" id="MD" type="button">Créer un compte</button>
+<p id="E" class="ko" role="alert"></p>
+</form>
+</div>
+<div id="H" hidden>
+<p class="m" id="HI"></p><button class="btn o" id="OUT" type="button">Déconnexion</button>
+<div id="D"></div><div id="P" hidden></div>
+</div>
+</div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+var mode='in',L=[],PG={},cur=0,cid=0;
+if(!window.SB_URL){$('F').hidden=true;$('AU').innerHTML='<p class="ko">Les comptes ne sont pas encore activés sur ce site (config.js à renseigner).</p>'}
+else if(A.tok)start();
+$('MD').onclick=function(){mode=mode=='in'?'up':'in';$('SU').hidden=mode=='in';$('nom').required=$('pre').required=mode=='up';$('GO').textContent=mode=='in'?'Se connecter':'Créer mon compte';this.textContent=mode=='in'?'Créer un compte':'J\'ai déjà un compte';$('E').textContent=''};
+$('F').onsubmit=async function(e){e.preventDefault();$('E').textContent='';
+try{if(mode=='in')await A.login($('em').value.trim(),$('pw').value);else await A.signup($('em').value.trim(),$('pw').value,$('nom').value.trim(),$('pre').value.trim());start()}
+catch(x){$('E').textContent=x.message=='confirm'?'Compte créé. Confirmez votre e-mail, puis connectez-vous.':'Erreur : '+x.message}};
+$('OUT').onclick=function(){A.out();location.hash='';location.reload()};
+async function start(){try{var p=(await A.q('profiles?id=eq.'+A.uid()+'&select=prenom,role'))[0]||{};
+$('AU').hidden=true;$('H').hidden=false;
+$('HI').innerHTML='Bonjour '+esc(p.prenom||'')+(p.role&&p.role!='apprenant'?' · <a href="admin.html">Espace équipe</a>':'');route()}
+catch(x){A.out();$('AU').hidden=false;$('E').textContent='Session expirée, reconnectez-vous.'}}
+window.onhashchange=function(){if(A.tok)route()};
+function route(){if(location.hash.indexOf('#c=')==0)player(+location.hash.slice(3));else{$('P').hidden=true;$('D').hidden=false;cur=0;dash().catch(function(x){$('D').innerHTML='<p class="ko">Erreur : '+esc(x.message)+'</p>'})}}
+async function dash(){var u=A.uid(),r=await Promise.all([A.q('enrollments?user_id=eq.'+u+'&select=statut,course_id,courses(titre)'),A.q('lessons?select=id,course_id'),A.q('progress?user_id=eq.'+u+'&select=lesson_id,course_id,done,score,total'),A.q('courses?publie=eq.true&order=id&select=id,titre,description,prix')]);
+var en=r[0],h='<h2>Mes cours</h2>',mine=en.map(function(e){return e.course_id});
+en.forEach(function(e){var t=e.courses&&e.courses.titre;
+if(e.statut=='actif'){var tot=r[1].filter(function(l){return l.course_id==e.course_id}).length,P=r[2].filter(function(p){return p.course_id==e.course_id}),d=P.filter(function(p){return p.done}).length,Q=P.filter(function(p){return p.total>0}),m=Q.length?Math.round(100*Q.reduce(function(s,p){return s+p.score/p.total},0)/Q.length):null;
+h+='<div class="card"><h3>'+esc(t)+'</h3><div class="bar"><i style="width:'+(tot?Math.round(100*d/tot):0)+'%"></i></div><p class="m">'+d+' / '+tot+' leçons terminées'+(m==null?'':' · score moyen '+m+' %')+'</p><a class="btn" href="#c='+e.course_id+'" style="display:inline-block;text-decoration:none">'+(d?'Continuer':'Commencer')+'</a></div>'}
+else h+='<div class="card"><h3>'+esc(t)+'</h3><p class="m">Demande envoyée. L\'accès est activé par l\'équipe après le paiement (NITA ou AMANA au +227 98 27 95 12).</p></div>'});
+if(!en.length)h+='<p class="m">Vous n\'avez pas encore de cours. Choisissez-en un ci-dessous.</p>';
+var cat=r[3].filter(function(c){return mine.indexOf(c.id)<0});
+h+='<h2>Cours disponibles</h2>'+(cat.map(function(c){return '<div class="card"><h3>'+esc(c.titre)+'</h3><p class="m">'+esc(c.description)+'</p><p><b>'+esc(c.prix)+'</b></p><button class="btn" data-c="'+c.id+'">Demander l\'accès</button></div>'}).join('')||'<p class="m">Aucun autre cours pour le moment.</p>');
+$('D').innerHTML=h}
+$('D').onclick=async function(e){var b=e.target.closest('button[data-c]');if(!b)return;b.disabled=true;
+try{await A.q('enrollments','POST',{user_id:A.uid(),course_id:+b.dataset.c,statut:'demande'},'return=minimal');dash()}catch(x){alert('Demande impossible : '+x.message);b.disabled=false}};
+function fmt(t){return '<p>'+esc(t).replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>')+'</p>'}
+async function player(id){cid=id;$('D').hidden=true;$('P').hidden=false;
+try{var r=await Promise.all([A.q('lessons?course_id=eq.'+id+'&order=position&select=*'),A.q('progress?course_id=eq.'+id+'&user_id=eq.'+A.uid()+'&select=*')]);L=r[0];PG={};r[1].forEach(function(p){PG[p.lesson_id]=p});
+if(!L.length){$('P').innerHTML='<p><a href="#">← Mes cours</a></p><p class="m">Aucune leçon disponible : accès non activé ou cours vide.</p>';return}
+cur=0;for(var i=0;i<L.length;i++)if(!PG[L[i].id]||!PG[L[i].id].done){cur=i;break}draw()}
+catch(x){$('P').innerHTML='<p class="ko">Erreur : '+esc(x.message)+'</p>'}}
+function nd(){return L.filter(function(l){return PG[l.id]&&PG[l.id].done}).length}
+function draw(){var l=L[cur],z=l.quiz||[],g=PG[l.id],d=nd();
+var h='<p><a href="#">← Mes cours</a></p><div class="bar"><i style="width:'+Math.round(100*d/L.length)+'%"></i></div><p class="m" id="CT">'+d+' / '+L.length+' leçons terminées</p><div class="pills">'+L.map(function(x,i){return '<button class="pill'+(i==cur?' on':'')+'" data-i="'+i+'">'+(PG[x.id]&&PG[x.id].done?'✓ ':'')+(i+1)+'</button>'}).join('')+'</div><h2>'+esc(l.titre)+'</h2>'+fmt(l.contenu);
+if(z.length)h+='<h2>Évaluation</h2>'+z.map(function(q,i){return '<div class="q"><b>'+(i+1)+'. '+esc(q.q)+'</b>'+q.o.map(function(o,j){return '<label class="o2"><input type="radio" name="q'+i+'" value="'+j+'"> '+esc(o)+'</label>'}).join('')+'<p class="m" id="e'+i+'"></p></div>'}).join('')+'<button class="btn" id="V">Valider mes réponses</button><p class="m" id="SC">'+(g&&g.total?'Dernier score : '+g.score+' / '+g.total:'')+'</p>';
+else h+='<button class="btn" id="V">Marquer comme terminée</button>';
+$('P').innerHTML=h}
+$('P').onclick=function(e){var p=e.target.closest('.pill');if(p){cur=+p.dataset.i;draw();return}if(e.target.id=='V')val(e.target)};
+async function val(b){var l=L[cur],z=l.quiz||[],s=0;b.disabled=true;
+z.forEach(function(q,i){var c=document.querySelector('input[name=q'+i+']:checked'),ok=c&&+c.value==q.a;if(ok)s++;$('e'+i).textContent=(ok?'✓ Correct. ':'✗ Bonne réponse : '+q.o[q.a]+'. ')+(q.e||'')});
+var row={user_id:A.uid(),lesson_id:l.id,course_id:cid,done:true,score:s,total:z.length};
+try{await A.q('progress?on_conflict=user_id,lesson_id','POST',row,'resolution=merge-duplicates,return=minimal');PG[l.id]=row;
+var d=nd();$('CT').textContent=d+' / '+L.length+' leçons terminées';document.querySelector('.bar i').style.width=Math.round(100*d/L.length)+'%';document.querySelectorAll('.pill')[cur].textContent='✓ '+(cur+1);
+if(z.length)$('SC').textContent='Score : '+s+' / '+z.length;else if(cur<L.length-1){cur++;draw()}else b.textContent='Cours terminé ✓'}
+catch(x){alert('Progression non enregistrée : '+x.message)}b.disabled=false}
+</script>
+</body>
+</html>
