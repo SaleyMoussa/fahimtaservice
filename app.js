@@ -1,3 +1,5 @@
+if(window.SB_URL)window.SB_URL=window.SB_URL.trim().replace(/\/(rest|auth)\/v1.*$/,'').replace(/\/+$/,'');
+if(window.SB_KEY)window.SB_KEY=window.SB_KEY.trim();
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function sv(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}}
