@@ -46,7 +46,7 @@ var S=['Nouvelle','Contactée','Payée','Inscrite','Annulée'];
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function H(){return {apikey:window.SB_KEY,Authorization:'Bearer '+T,'Content-Type':'application/json'}}
 try{T=sessionStorage.getItem('t')}catch(e){}
-if(!window.SB_URL){$('E').textContent='Le fichier config.js n\'est pas encore rempli : renseignez SB_URL et SB_KEY.';$('L').hidden=true}
+if(!window.SB_URL){$('E').textContent='Connexion impossible pour le moment : le fichier config.js est absent ou vide. Il doit contenir SB_URL et SB_KEY (voir la configuration Supabase).';$('L').hidden=true}
 $('L').addEventListener('submit',function(e){e.preventDefault();$('E').textContent='Connexion…';
 fetch(SB_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:$('u').value.trim(),password:$('p').value})})
 .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){T=j.access_token;try{sessionStorage.setItem('t',T)}catch(e){}$('E').textContent='';$('p').value='';load()})
