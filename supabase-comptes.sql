@@ -220,7 +220,79 @@ select v.* from (values
 ) as v(titre, description, prix, categorie, niveau, page, ordre, publie)
 where not exists (select 1 from public.courses c where c.titre = v.titre);
 
--- 5. VOTRE COMPTE ADMINISTRATEUR
+-- 5. STATISTIQUES DE VISITES
+create table if not exists public.visites (
+  id bigint generated always as identity primary key,
+  jour timestamptz not null default now(),
+  page text,
+  visiteur text,          -- identifiant anonyme tiré au hasard dans le navigateur
+  provenance text
+);
+create index if not exists visites_jour_idx on public.visites (jour);
+alter table public.visites enable row level security;
+-- Tout visiteur peut enregistrer sa visite, personne ne peut lire la table directement
+drop policy if exists "visite ajout" on public.visites;
+create policy "visite ajout" on public.visites for insert to anon, authenticated
+  with check (length(coalesce(page,'')) < 200 and length(coalesce(visiteur,'')) < 60 and length(coalesce(provenance,'')) < 300);
+
+-- Chiffres pour l'espace formateur (réservé à l'équipe)
+create or replace function public.stats_visites(p_jours int default 30) returns json
+language plpgsql stable security definer set search_path = public as $$
+declare r json; z text := 'Africa/Niamey'; n timestamptz := now();
+begin
+  if public.my_role() not in ('admin','gestionnaire','responsable') then
+    raise exception 'Accès réservé à l''équipe';
+  end if;
+  select json_build_object(
+    'jour',     (select json_build_object('v',count(*),'u',count(distinct visiteur)) from visites where jour >= date_trunc('day',  n at time zone z) at time zone z),
+    'semaine',  (select json_build_object('v',count(*),'u',count(distinct visiteur)) from visites where jour >= date_trunc('week', n at time zone z) at time zone z),
+    'mois',     (select json_build_object('v',count(*),'u',count(distinct visiteur)) from visites where jour >= date_trunc('month',n at time zone z) at time zone z),
+    'annee',    (select json_build_object('v',count(*),'u',count(distinct visiteur)) from visites where jour >= date_trunc('year', n at time zone z) at time zone z),
+    'total',    (select json_build_object('v',count(*),'u',count(distinct visiteur)) from visites),
+    'par_jour', (select coalesce(json_agg(json_build_object('d',d,'v',v,'u',u) order by d),'[]') from (
+                   select (jour at time zone z)::date d, count(*) v, count(distinct visiteur) u from visites
+                   where jour >= n - make_interval(days => p_jours) group by 1) t),
+    'par_mois', (select coalesce(json_agg(json_build_object('m',m,'v',v,'u',u) order by m),'[]') from (
+                   select to_char(jour at time zone z,'YYYY-MM') m, count(*) v, count(distinct visiteur) u from visites
+                   where jour >= n - interval '12 months' group by 1) t),
+    'par_annee',(select coalesce(json_agg(json_build_object('a',a,'v',v,'u',u) order by a),'[]') from (
+                   select to_char(jour at time zone z,'YYYY') a, count(*) v, count(distinct visiteur) u from visites group by 1) t),
+    'pages',    (select coalesce(json_agg(json_build_object('p',page,'v',v) order by v desc),'[]') from (
+                   select page, count(*) v from visites where jour >= n - interval '30 days' group by 1 order by 2 desc limit 10) t)
+  ) into r;
+  return r;
+end $$;
+grant execute on function public.stats_visites(int) to authenticated;
+
+-- 6. VIDÉOS YOUTUBE ET RÉGLAGES DU SITE
+create table if not exists public.videos (
+  id bigint generated always as identity primary key,
+  created_at timestamptz default now(),
+  course_id bigint references public.courses(id) on delete cascade,   -- vide = vidéo générale
+  titre text not null,
+  url text not null,
+  ordre int default 100
+);
+alter table public.videos enable row level security;
+drop policy if exists "videos lecture" on public.videos;
+create policy "videos lecture" on public.videos for select to anon, authenticated using (true);
+drop policy if exists "videos gestion" on public.videos;
+create policy "videos gestion" on public.videos for all to authenticated
+  using (public.my_role() in ('admin','responsable')) with check (public.my_role() in ('admin','responsable'));
+
+create table if not exists public.reglages (
+  cle text primary key,
+  valeur text
+);
+alter table public.reglages enable row level security;
+drop policy if exists "reglages lecture" on public.reglages;
+create policy "reglages lecture" on public.reglages for select to anon, authenticated using (true);
+drop policy if exists "reglages gestion" on public.reglages;
+create policy "reglages gestion" on public.reglages for all to authenticated
+  using (public.my_role() = 'admin') with check (public.my_role() = 'admin');
+insert into public.reglages (cle, valeur) values ('youtube', '') on conflict (cle) do nothing;
+
+-- 7. VOTRE COMPTE ADMINISTRATEUR
 -- Créez d'abord votre compte sur la page « Espace apprenant », puis remplacez
 -- l'adresse ci-dessous par la vôtre et exécutez seulement cette ligne :
 -- update public.profiles set role = 'admin' where email = 'votre.adresse@exemple.com';
