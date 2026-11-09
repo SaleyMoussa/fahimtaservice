@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fahimta Service Informatique – Formations et services</title>
+<link rel="stylesheet" href="videos.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
 <style>
 :root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mute:#56627a;--line:#dbe2ee;--word:#2b579a;--excel:#1d7a46;--ppt:#c8501f;--out:#0f78d4;--vio:#7a4fb5;--btn:#14213d;--btnt:#fff;
@@ -45,6 +46,14 @@ form{background:var(--card);border:1px solid var(--line);border-radius:6px;paddi
 label{display:grid;gap:5px;font-weight:500;font-size:15px}
 input,select{padding:12px;border:1px solid var(--line);border-radius:6px;font:inherit;background:var(--bg);color:var(--ink)}
 footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+.steps{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.steps div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:15px;display:flex;gap:10px;align-items:center}
+.steps b{flex:none;width:30px;height:30px;border-radius:50%;background:var(--word);color:#fff;display:grid;place-items:center;font:800 15px "Bricolage Grotesque",sans-serif}
+.ccg{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.cc{display:flex;flex-direction:column;gap:4px;background:var(--card);border:1px solid var(--line);border-top:5px solid var(--a);border-radius:8px;padding:16px;text-decoration:none;color:var(--ink)}
+.cc b{font:800 22px "Bricolage Grotesque",sans-serif;color:var(--a)}.cc span{color:var(--mute);font-size:14px;flex:1}.cc em{font-style:normal;font-weight:600;font-size:14px;margin-top:6px}
+.cc:hover,.cc:focus-visible{border-color:var(--a)}.cc:focus-visible{outline:3px solid var(--out);outline-offset:2px}
+#VID{--c:var(--word)}
 </style>
 </head>
 <body>
@@ -106,10 +115,15 @@ footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 </section>
 
 <section id="cours">
-<h2>Accéder aux cours en ligne</h2>
-<p class="sub">Les plans de cours sont en accès libre. Les cours complets (leçons, exercices, quiz) sont réservés aux apprenants inscrits, avec un code d'accès.</p>
-<div class="cta"><a class="btn" href="cours.html">Voir les plans de cours</a><a class="btn" href="espace.html">Espace apprenant (connexion)</a><a class="btn o" href="admin.html">Espace formateur</a><a class="btn o" href="cours-word.html">Cours Word (code)</a><a class="btn o" href="cours-excel.html">Cours Excel (code)</a><a class="btn o" href="cours-powerpoint.html">Cours PowerPoint (code)</a><a class="btn o" href="cours-kobotoolbox.html">Cours KoboToolbox (code)</a><a class="btn o" href="cours-qgis.html">Cours QGIS (code)</a><a class="btn o" href="cours-spss.html">Cours SPSS (code)</a><a class="btn o" href="cours-xlstat.html">Cours XLSTAT (code)</a></div>
+<h2>Cours en ligne</h2>
+<p class="sub">Inscrivez-vous dans l'Espace apprenant : une fois votre accès activé, vos cours s'ouvrent en un clic, sans code à retaper. Les plans de cours restent en accès libre.</p>
+<div class="steps"><div><b>1</b>Créez votre compte dans l'Espace apprenant</div><div><b>2</b>Choisissez un cours et payez (NITA ou AMANA)</div><div><b>3</b>Le formateur active votre accès</div><div><b>4</b>Suivez le cours et obtenez votre attestation</div></div>
+<div class="cta" style="margin:18px 0 26px"><a class="btn" href="espace.html">Espace apprenant</a><a class="btn o" href="cours.html">Voir les plans de cours</a></div>
+<div class="ccg"><a class="cc" href="cours-word.html" style="--a:var(--word)"><b>Word</b><span>4 modules · 78 fiches d'exercices</span><em>Ouvrir le cours →</em></a><a class="cc" href="cours-excel.html" style="--a:var(--excel)"><b>Excel</b><span>4 modules · 80 fiches d'exercices</span><em>Ouvrir le cours →</em></a><a class="cc" href="cours-powerpoint.html" style="--a:var(--ppt)"><b>PowerPoint</b><span>4 modules · 60 fiches d'exercices</span><em>Ouvrir le cours →</em></a><a class="cc" href="cours-kobotoolbox.html" style="--a:var(--out)"><b>KoboToolbox</b><span>11 modules · supports à télécharger</span><em>Ouvrir le cours →</em></a><a class="cc" href="cours-spss.html" style="--a:var(--vio)"><b>SPSS</b><span>10 modules · supports à télécharger</span><em>Ouvrir le cours →</em></a><a class="cc" href="cours-xlstat.html" style="--a:var(--ppt)"><b>XLSTAT</b><span>8 modules · supports à télécharger</span><em>Ouvrir le cours →</em></a><a class="cc" href="cours-qgis.html" style="--a:var(--excel)"><b>QGIS</b><span>10 modules · Master et Doctorat</span><em>Ouvrir le cours →</em></a></div>
+<p class="sub" style="margin-top:18px;font-size:15px">Formateur ? <a href="admin.html">Accéder à l'Espace formateur</a></p>
 </section>
+
+<section id="videos" style="padding-top:0"><div id="VID" hidden></div></section>
 
 <section id="reprographie">
 <h2>2. Reprographie et vente de fournitures et produits</h2>
@@ -168,5 +182,8 @@ var m='Bonjour, je suis intéressé(e) par : '+document.getElementById('t').valu
 window.open('https://wa.me/22798279512?text='+encodeURIComponent(m),'_blank');
 });
 </script>
+<script src="config.js"></script>
+<script src="stats.js"></script>
+<script src="videos.js"></script>
 </body>
 </html>
