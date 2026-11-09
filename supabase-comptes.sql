@@ -67,7 +67,7 @@ create table if not exists public.enrollments (
   created_at timestamptz default now(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   course_id bigint not null references public.courses(id) on delete cascade,
-  statut text not null default 'demande' check (statut in ('demande','actif')),
+  statut text not null default 'demande',
   unique (user_id, course_id)
 );
 
@@ -113,7 +113,7 @@ drop policy if exists "lecons lecture" on public.lessons;
 create policy "lecons lecture" on public.lessons for select to authenticated
   using (public.my_role() in ('admin','gestionnaire','responsable')
          or exists (select 1 from public.enrollments e
-                    where e.course_id = lessons.course_id and e.user_id = auth.uid() and e.statut = 'actif'));
+                    where e.course_id = lessons.course_id and e.user_id = auth.uid() and e.statut in ('actif','termine')));
 drop policy if exists "lecons gestion" on public.lessons;
 create policy "lecons gestion" on public.lessons for all to authenticated
   using (public.my_role() = 'admin'
@@ -158,7 +158,69 @@ do $$ begin
   end if;
 end $$;
 
--- 4. VOTRE COMPTE ADMINISTRATEUR
+-- 4. CATALOGUE, SUIVI DE FIN DE FORMATION ET ATTESTATIONS
+alter table public.courses add column if not exists categorie text;
+alter table public.courses add column if not exists niveau text;
+alter table public.courses add column if not exists page text;      -- page du cours sur le site (ex. cours-word.html)
+alter table public.courses add column if not exists ordre int default 100;
+
+alter table public.enrollments add column if not exists date_activation timestamptz;
+alter table public.enrollments add column if not exists date_fin timestamptz;
+alter table public.enrollments add column if not exists mention text;      -- appréciation du formateur
+alter table public.enrollments add column if not exists valide_par uuid references public.profiles(id) on delete set null;
+alter table public.enrollments drop constraint if exists enrollments_statut_check;
+alter table public.enrollments add constraint enrollments_statut_check
+  check (statut in ('demande','actif','termine','refuse'));
+
+-- Codes d'accès des pages de cours : visibles seulement par l'équipe
+-- et par les apprenants dont l'accès est actif ou terminé
+create table if not exists public.course_codes (
+  course_id bigint primary key references public.courses(id) on delete cascade,
+  codes text not null default ''          -- plusieurs codes séparés par des virgules
+);
+alter table public.course_codes enable row level security;
+drop policy if exists "codes lecture" on public.course_codes;
+create policy "codes lecture" on public.course_codes for select to authenticated
+  using (public.my_role() in ('admin','responsable','gestionnaire')
+         or exists (select 1 from public.enrollments e
+                    where e.course_id = course_codes.course_id and e.user_id = auth.uid()
+                      and e.statut in ('actif','termine')));
+drop policy if exists "codes gestion" on public.course_codes;
+create policy "codes gestion" on public.course_codes for all to authenticated
+  using (public.my_role() in ('admin','responsable'))
+  with check (public.my_role() in ('admin','responsable'));
+
+-- Un apprenant peut annuler sa propre demande tant qu'elle n'est pas activée
+drop policy if exists "acces annulation" on public.enrollments;
+create policy "acces annulation" on public.enrollments for delete to authenticated
+  using ((user_id = auth.uid() and statut = 'demande') or public.my_role() = 'admin');
+
+-- Chacun peut corriger son nom et prénom (pour l'attestation), sans toucher à son rôle
+create or replace function public.maj_mon_nom(p_nom text, p_prenom text) returns void
+language sql security definer set search_path = public as $$
+  update public.profiles set nom = p_nom, prenom = p_prenom where id = auth.uid()
+$$;
+grant execute on function public.maj_mon_nom(text, text) to authenticated;
+
+-- Catalogue de départ (ajoute seulement les cours qui n'existent pas encore)
+insert into public.courses (titre, description, prix, categorie, niveau, page, ordre, publie)
+select v.* from (values
+  ('Word', 'Écrire et mettre en forme des documents professionnels. 4 modules et 78 fiches d''exercices.', '10 000 FCFA / mois', 'Bureautique', 'Débutant', 'cours-word.html', 1, true),
+  ('Excel', 'Calculer, analyser et présenter des données. 4 modules et 80 fiches d''exercices.', '10 000 FCFA / mois', 'Bureautique', 'Débutant à intermédiaire', 'cours-excel.html', 2, true),
+  ('PowerPoint', 'Créer des présentations claires et convaincantes. 4 modules et 60 fiches d''exercices.', '10 000 FCFA / mois', 'Bureautique', 'Débutant', 'cours-powerpoint.html', 3, true),
+  ('Windows', 'Utiliser et entretenir son ordinateur : fichiers, paramètres, sécurité, dépannage.', '10 000 FCFA / mois', 'Bureautique', 'Débutant', null, 4, true),
+  ('KoboToolbox et KoboCollect', 'Concevoir, déployer et gérer une enquête de terrain, du formulaire à l''export des données.', 'Tarif sur demande', 'Collecte et analyse de données', 'Débutant à intermédiaire', 'cours-kobotoolbox.html', 10, true),
+  ('SPSS', 'Analyser des données quantitatives et qualitatives, du nettoyage au rapport final.', 'Tarif sur demande', 'Collecte et analyse de données', 'Débutant à avancé', 'cours-spss.html', 11, true),
+  ('XLSTAT', 'Les statistiques avancées dans Excel : tests, régressions, ACP, AFC, classification.', 'Tarif sur demande', 'Collecte et analyse de données', 'Intermédiaire', 'cours-xlstat.html', 12, true),
+  ('QGIS', 'De l''installation au projet cartographique de mémoire ou de thèse (Master et Doctorat).', 'Tarif sur demande', 'Cartographie', 'Master et Doctorat', 'cours-qgis.html', 20, true),
+  ('ArcGIS', 'Cartes et analyses spatiales : occupation du sol, analyse hydrologique, bases de données spatiales.', 'Analyse hydrologique : 30 000 FCFA', 'Cartographie', 'Débutant à intermédiaire', null, 21, true),
+  ('IA responsable en rédaction scientifique', 'Utiliser l''IA sans tricher ni se tromper : formuler, vérifier, citer.', '20 000 FCFA', 'Recherche scientifique', 'Tous niveaux', null, 30, true),
+  ('Zotero', 'Gérer ses références et produire une bibliographie automatique dans Word.', '15 000 FCFA', 'Recherche scientifique', 'Débutant', null, 31, true),
+  ('Analyse bibliométrique (VOSviewer)', 'Cartographier la littérature scientifique avec VOSviewer.', '20 000 FCFA', 'Recherche scientifique', 'Intermédiaire', null, 32, true)
+) as v(titre, description, prix, categorie, niveau, page, ordre, publie)
+where not exists (select 1 from public.courses c where c.titre = v.titre);
+
+-- 5. VOTRE COMPTE ADMINISTRATEUR
 -- Créez d'abord votre compte sur la page « Espace apprenant », puis remplacez
 -- l'adresse ci-dessous par la vôtre et exécutez seulement cette ligne :
 -- update public.profiles set role = 'admin' where email = 'votre.adresse@exemple.com';

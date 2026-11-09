@@ -44,7 +44,7 @@ details.fi>summary{cursor:pointer;padding:10px 0;font-weight:600}
 <form id="G"><input id="C" autocomplete="off" autocapitalize="characters" placeholder="Code d'accès" aria-label="Code d'accès" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:6px;font:inherit;background:var(--card);color:var(--ink)">
 <button class="o" type="submit" style="text-align:center;font-weight:600;margin-top:10px">Ouvrir le cours</button></form>
 <p id="X" class="e" style="color:var(--ko)" role="alert"></p>
-<p class="e">Pas de code ? <a href="https://wa.me/22798279512?text=Bonjour%2C%20je%20souhaite%20un%20code%20d%27acc%C3%A8s%20pour%20le%20cours%20%3A%20XLSTAT" style="color:inherit">Contactez-nous sur WhatsApp</a>.</p></div>
+<p class="e">Inscrit dans l'<a href="espace.html" style="color:inherit">Espace apprenant</a> ? Ouvrez le cours depuis « Mes cours » : le code s'applique tout seul. Pas de code ? <a href="https://wa.me/22798279512?text=Bonjour%2C%20je%20souhaite%20un%20code%20d%27acc%C3%A8s%20pour%20le%20cours%20%3A%20XLSTAT" style="color:inherit">Contactez-nous sur WhatsApp</a>.</p></div>
 <div id="L"></div>
 </div>
 <script>
@@ -55,6 +55,8 @@ document.getElementById('L').innerHTML=o}
 var D=async function(c){var r=Uint8Array.from(atob(X),function(x){return x.charCodeAt(0)});var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(c),'PBKDF2',false,['deriveKey']);var k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:r.slice(0,16),iterations:150000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);var p=await crypto.subtle.decrypt({name:'AES-GCM',iv:r.slice(16,28)},k,r.slice(28));return new TextDecoder().decode(p)};
 document.getElementById('G').addEventListener('submit',function(e){e.preventDefault();var x=document.getElementById('X');x.textContent='Vérification…';
 D(document.getElementById('C').value.trim().toUpperCase()).then(function(t){R(JSON.parse(t));document.getElementById('K').hidden=true;x.textContent=''}).catch(function(){x.textContent='Code incorrect. Vérifiez et réessayez.'})});
+(function(){var m=location.hash.match(/code=([^&]+)/);if(!m)return;history.replaceState(null,'',location.pathname+location.search);
+decodeURIComponent(m[1]).split(',').map(function(c){return c.trim()}).filter(Boolean).forEach(function(c,i){setTimeout(function(){document.getElementById('C').value=c;document.getElementById('G').requestSubmit()},i*400)})})();
 </script>
 </body>
 </html>

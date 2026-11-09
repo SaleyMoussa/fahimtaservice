@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Espace équipe – Fahimta</title>
+<title>Espace formateur – Fahimta</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="w">
-<h1>Espace équipe</h1>
+<p><a href="index.html" style="font-weight:600">← Retour au site Fahimta</a> · <a href="espace.html">Espace apprenant</a></p>
+<h1>Espace formateur</h1>
 <form id="L" class="g"><label>E-mail<input id="u" type="email" required autocomplete="username"></label><label>Mot de passe<input id="p" type="password" required autocomplete="current-password"></label><button class="btn" type="submit">Se connecter</button></form>
 <p id="E" class="ko" role="alert"></p>
 <div id="A" hidden><div class="tabs" id="T"></div><div id="V"></div></div>
@@ -19,13 +20,14 @@
 <script src="app.js"></script>
 <script>
 var me,cid=null,S=['Nouvelle','Contactée','Payée','Inscrite','Annulée'];
-var TB={ins:['Inscriptions',['admin','gestionnaire']],crs:['Cours',['admin','responsable']],acc:['Accès et suivi',['admin','gestionnaire','responsable']],usr:['Utilisateurs',['admin']]};
+var TB={acc:['Apprenants et suivi',['admin','gestionnaire','responsable']],crs:['Cours et codes',['admin','responsable']],ins:['Inscriptions',['admin','gestionnaire']],usr:['Utilisateurs',['admin']]};
+var RL={apprenant:'Apprenant',responsable:'Formateur',gestionnaire:'Gestionnaire',admin:'Administrateur'};
 var V={ins:vIns,crs:vCrs,acc:vAcc,usr:vUsr};
 function E(t){$('E').textContent=t}
 if(!window.SB_URL){$('L').hidden=true;E('Connexion impossible : le fichier config.js est absent ou vide (SB_URL et SB_KEY).')}else if(A.tok)boot();
 $('L').onsubmit=async function(e){e.preventDefault();E('Connexion…');try{await A.login($('u').value.trim(),$('p').value);E('');boot()}catch(x){E('E-mail ou mot de passe incorrect.')}};
 async function boot(){try{me=(await A.q('profiles?id=eq.'+A.uid()+'&select=*'))[0];
-if(!me||['admin','gestionnaire','responsable'].indexOf(me.role)<0){A.out();E('Accès réservé à l\'équipe. Demandez à la direction de vous attribuer un rôle.');return}
+if(!me||['admin','gestionnaire','responsable'].indexOf(me.role)<0){A.out();E('Accès réservé aux formateurs et à l\'équipe. Demandez à l\'administrateur de vous attribuer le rôle Formateur.');return}
 $('L').hidden=true;$('A').hidden=false;var h='',f=null;for(var k in TB)if(TB[k][1].indexOf(me.role)>-1){if(!f)f=k;h+='<button class="btn o" data-t="'+k+'">'+TB[k][0]+'</button>'}
 $('T').innerHTML=h+'<button class="btn" id="O">Déconnexion</button>';go(f)}
 catch(x){A.out();$('L').hidden=false;E('Session expirée, reconnectez-vous.')}}
@@ -38,18 +40,29 @@ $('s').oninput=dIns;dIns()}
 function dIns(){var q=$('s').value.toLowerCase(),L=D.filter(function(d){return JSON.stringify(d).toLowerCase().indexOf(q)>-1});$('n').textContent=L.length+' inscription(s)';
 $('R').innerHTML=L.map(function(d){return '<div class="card"><h3>'+esc(d.prenom)+' '+esc(d.nom)+'</h3><p class="m">'+esc(d.formation)+' · '+esc(d.niveau_souhaite)+' · '+esc(d.mode)+'</p><p class="m">'+esc(d.duree_jours)+' jours · début '+esc(d.date_debut)+' · reçue le '+esc((d.created_at||'').slice(0,10))+'</p><p><a href="tel:'+esc(d.telephone)+'">'+esc(d.telephone)+'</a></p><details><summary>Détails</summary><p class="m">'+esc(d.sexe)+' · '+esc(d.niveau_etudes)+'<br>Né(e) le '+esc(d.date_naissance)+' à '+esc(d.lieu_naissance)+'<br>'+esc(d.nationalite)+'<br>'+esc(d.email)+'<br>Frais : '+esc(d.frais)+'</p></details><select data-s="'+d.id+'" aria-label="Statut">'+S.map(function(s){return '<option'+(s==d.statut?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'}).join('')}
 async function vCrs(){if(cid)return vLes();
-var C=await A.q('courses?select=*&order=id.desc'+(me.role=='admin'?'':'&created_by=eq.'+A.uid()));
-$('V').innerHTML='<h2>Nouveau cours</h2><form id="NC" class="g"><input id="ct" placeholder="Titre du cours" required><textarea id="cd" placeholder="Description" rows="3"></textarea><input id="cp" placeholder="Prix (ex. 10 000 FCFA / mois)"><button class="btn">Créer le cours</button></form><h2>Cours</h2>'+(C.map(function(c){return '<div class="card"><h3>'+esc(c.titre)+'</h3><p class="m">'+esc(c.prix)+' · '+(c.publie?'Publié':'Brouillon')+'</p><button class="btn" data-a="o" data-i="'+c.id+'">Leçons et évaluations</button> <button class="btn o" data-a="p" data-i="'+c.id+'" data-v="'+(c.publie?0:1)+'">'+(c.publie?'Dépublier':'Publier')+'</button></div>'}).join('')||'<p class="m">Aucun cours pour le moment.</p>');
-$('NC').onsubmit=async function(e){e.preventDefault();try{await A.q('courses','POST',{titre:$('ct').value.trim(),description:$('cd').value.trim(),prix:$('cp').value.trim(),created_by:A.uid()},'return=minimal');vCrs()}catch(x){alert('Erreur : '+x.message)}}}
+var r=await Promise.all([A.q('courses?select=*&order=ordre,titre'+(me.role=='admin'?'':'&created_by=eq.'+A.uid())),A.q('course_codes?select=*')]),C=r[0],K={};r[1].forEach(function(k){K[k.course_id]=k.codes});
+$('V').innerHTML='<h2>Nouveau cours</h2><form id="NC" class="g"><input id="ct" placeholder="Titre du cours" required aria-label="Titre"><textarea id="cd" placeholder="Description" rows="3" aria-label="Description"></textarea><input id="cp" placeholder="Prix (ex. 10 000 FCFA / mois)" aria-label="Prix"><input id="cc" placeholder="Catégorie (ex. Bureautique)" aria-label="Catégorie"><button class="btn">Créer le cours</button></form><h2>Cours ('+C.length+')</h2><p class="m">Les codes d\'accès ne sont visibles que par les apprenants dont l\'accès est actif. Le bouton « Ouvrir le cours » de leur tableau de bord applique le code automatiquement.</p>'+(C.map(function(c){return '<div class="card"><h3>'+esc(c.titre)+'</h3><p class="m">'+esc([c.categorie,c.niveau,c.prix].filter(Boolean).join(' · '))+' · '+(c.publie?'Publié':'Brouillon')+'</p><details><summary>Modifier le cours et les codes d\'accès</summary><div class="g" style="margin-top:8px"><label>Titre<input id="et'+c.id+'" value="'+esc(c.titre)+'"></label><label>Description<textarea id="ed'+c.id+'" rows="3">'+esc(c.description)+'</textarea></label><label>Prix<input id="ep'+c.id+'" value="'+esc(c.prix)+'"></label><label>Catégorie<input id="ec'+c.id+'" value="'+esc(c.categorie)+'"></label><label>Niveau<input id="en'+c.id+'" value="'+esc(c.niveau)+'"></label><label>Page du cours sur le site<input id="eg'+c.id+'" value="'+esc(c.page)+'" placeholder="ex. cours-word.html"></label><label>Code(s) d\'accès, séparés par des virgules<input id="ek'+c.id+'" value="'+esc(K[c.id]||'')+'" autocomplete="off"></label><button class="btn" data-a="cs" data-i="'+c.id+'">Enregistrer</button></div></details><button class="btn" data-a="o" data-i="'+c.id+'">Leçons et évaluations</button> <button class="btn o" data-a="p" data-i="'+c.id+'" data-v="'+(c.publie?0:1)+'">'+(c.publie?'Dépublier':'Publier')+'</button></div>'}).join('')||'<p class="m">Aucun cours pour le moment.</p>');
+$('NC').onsubmit=async function(e){e.preventDefault();try{await A.q('courses','POST',{titre:$('ct').value.trim(),description:$('cd').value.trim(),prix:$('cp').value.trim(),categorie:$('cc').value.trim()||null,created_by:A.uid()},'return=minimal');vCrs()}catch(x){alert('Erreur : '+x.message)}}}
 function qt(z){return (z||[]).map(function(x){return [x.q,x.o.join(' ; '),x.a+1,x.e||''].join(' | ')}).join('\n')}
 function qp(t){return t.split('\n').map(function(s){return s.trim()}).filter(Boolean).map(function(s){var p=s.split('|').map(function(x){return x.trim()});return {q:p[0],o:(p[1]||'').split(';').map(function(x){return x.trim()}).filter(Boolean),a:(parseInt(p[2])||1)-1,e:p[3]||''}})}
 async function vLes(){var r=await Promise.all([A.q('courses?id=eq.'+cid+'&select=titre'),A.q('lessons?course_id=eq.'+cid+'&order=position&select=*')]),Ls=r[1];
 $('V').innerHTML='<p><button class="btn o" data-a="b">← Cours</button></p><h2>'+esc(r[0][0].titre)+'</h2><p class="m">Évaluation : une question par ligne, au format<br><b>Question | Choix 1 ; Choix 2 ; Choix 3 | n° de la bonne réponse | Explication</b></p>'+Ls.map(function(l){return '<div class="card"><input id="t'+l.id+'" value="'+esc(l.titre)+'" aria-label="Titre"><textarea id="c'+l.id+'" rows="8" placeholder="Contenu de la leçon (séparez les paragraphes par une ligne vide)">'+esc(l.contenu)+'</textarea><textarea id="z'+l.id+'" rows="4" placeholder="Évaluation (facultative)">'+esc(qt(l.quiz))+'</textarea><button class="btn" data-a="sv" data-i="'+l.id+'">Enregistrer</button> <button class="btn o" data-a="del" data-i="'+l.id+'">Supprimer</button></div>'}).join('')+'<button class="btn" data-a="add" data-i="'+(Ls.length+1)+'">+ Ajouter une leçon</button>'}
-async function vAcc(){var r=await Promise.all([A.q('enrollments?select=*,profiles(nom,prenom,email),courses(titre)&order=created_at.desc'),A.q('lessons?select=id,course_id'),A.q('progress?select=user_id,course_id,done,score,total')]);
-$('V').innerHTML='<p class="m">'+r[0].length+' demande(s) d\'accès</p>'+r[0].map(function(e){var pr=e.profiles||{},tot=r[1].filter(function(l){return l.course_id==e.course_id}).length,P=r[2].filter(function(p){return p.user_id==e.user_id&&p.course_id==e.course_id}),d=P.filter(function(p){return p.done}).length,Q=P.filter(function(p){return p.total>0}),m=Q.length?Math.round(100*Q.reduce(function(s,p){return s+p.score/p.total},0)/Q.length):null,on=e.statut=='actif';
-return '<div class="card"><h3>'+esc(pr.prenom)+' '+esc(pr.nom)+'</h3><p class="m">'+esc((e.courses||{}).titre)+' · '+esc(pr.email)+'</p><p>'+d+' / '+tot+' leçons'+(m==null?'':' · score moyen '+m+' %')+'</p><button class="btn'+(on?' o':'')+'" data-a="en" data-i="'+e.id+'" data-v="'+(on?'demande':'actif')+'">'+(on?'Retirer l\'accès':'Activer l\'accès')+'</button> <span class="m">'+esc(e.statut)+'</span></div>'}).join('')}
+var FS='demande',FQ='';
+var ST={demande:['À valider','var(--mute)'],actif:['Actif','var(--c)'],termine:['Terminé','var(--ok)'],refuse:['Refusé','var(--ko)']};
+async function vAcc(){var r=await Promise.all([A.q('enrollments?select=*,profiles!enrollments_user_id_fkey(nom,prenom,email),courses(titre)&order=created_at.desc'),A.q('lessons?select=id,course_id'),A.q('progress?select=user_id,course_id,done,score,total')]);ACC=r;
+var n={};r[0].forEach(function(e){n[e.statut]=(n[e.statut]||0)+1});
+$('V').innerHTML='<div class="pills" id="FS">'+['demande','actif','termine','refuse',''].map(function(k){return '<button class="pill'+(k==FS?' on':'')+'" data-f="'+k+'">'+(k?ST[k][0]:'Tous')+' ('+(k?n[k]||0:r[0].length)+')</button>'}).join('')+'</div><div class="srch"><input id="fq" type="search" placeholder="Rechercher un apprenant ou un cours" value="'+esc(FQ)+'" aria-label="Rechercher"></div><div id="AL"></div>';dAcc()}
+var ACC=[[],[],[]];
+function dAcc(){var q=FQ.toLowerCase(),L=ACC[0].filter(function(e){var pr=e.profiles||{};return (!FS||e.statut==FS)&&(!q||[pr.nom,pr.prenom,pr.email,(e.courses||{}).titre].join(' ').toLowerCase().indexOf(q)>-1)});
+var d=function(s){return s?new Date(s).toLocaleDateString('fr-FR'):''};
+$('AL').innerHTML=(L.length?'':'<p class="m">Aucun apprenant dans cette liste.</p>')+L.map(function(e){var pr=e.profiles||{},tot=ACC[1].filter(function(l){return l.course_id==e.course_id}).length,P=ACC[2].filter(function(p){return p.user_id==e.user_id&&p.course_id==e.course_id}),dn=P.filter(function(p){return p.done}).length,Q=P.filter(function(p){return p.total>0}),m=Q.length?Math.round(100*Q.reduce(function(s,p){return s+p.score/p.total},0)/Q.length):null,st=ST[e.statut]||[e.statut,'var(--mute)'],b='';
+if(e.statut=='demande')b='<button class="btn" data-a="en" data-i="'+e.id+'" data-v="actif">Activer l\'accès</button> <button class="btn o" data-a="en" data-i="'+e.id+'" data-v="refuse">Refuser</button>';
+else if(e.statut=='actif')b='<button class="btn" data-a="fin" data-i="'+e.id+'">Valider la fin du cours</button> <button class="btn o" data-a="en" data-i="'+e.id+'" data-v="demande">Retirer l\'accès</button>';
+else if(e.statut=='termine')b='<a class="btn" style="display:inline-block;text-decoration:none" href="attestation.html?e='+e.id+'" target="_blank">Voir l\'attestation</a> <button class="btn o" data-a="en" data-i="'+e.id+'" data-v="actif">Annuler la validation</button>';
+else b='<button class="btn o" data-a="en" data-i="'+e.id+'" data-v="actif">Activer quand même</button>';
+return '<div class="card" style="border-left-color:'+st[1]+'"><h3>'+esc(pr.prenom)+' '+esc(pr.nom)+'</h3><p class="m">'+esc((e.courses||{}).titre)+' · '+esc(pr.email)+'</p><p class="m"><b>'+st[0]+'</b> · demande du '+d(e.created_at)+(e.date_activation?' · activé le '+d(e.date_activation):'')+(e.date_fin?' · terminé le '+d(e.date_fin):'')+(e.mention?' · '+esc(e.mention):'')+'</p>'+(tot?'<p>'+dn+' / '+tot+' leçons'+(m==null?'':' · score moyen '+m+' %')+'</p>':'')+b+'</div>'}).join('')}
 async function vUsr(){var U=await A.q('profiles?select=*&order=created_at.desc');
-$('V').innerHTML='<p class="m">Pour créer un compte équipe : la personne s\'inscrit sur la page Espace apprenant, puis vous lui attribuez un rôle ici.</p>'+U.map(function(u){return '<div class="card"><h3>'+esc(u.prenom)+' '+esc(u.nom)+'</h3><p class="m">'+esc(u.email)+'</p><select data-r="'+u.id+'" aria-label="Rôle">'+['apprenant','responsable','gestionnaire','admin'].map(function(r){return '<option'+(r==u.role?' selected':'')+'>'+r+'</option>'}).join('')+'</select></div>'}).join('')}
+$('V').innerHTML='<p class="m">Pour créer un compte formateur : la personne crée d\'abord un compte sur la page Espace apprenant, puis vous lui attribuez ici le rôle « Formateur ». Un formateur crée ses cours, active les accès et valide les fins de formation.</p>'+U.map(function(u){return '<div class="card"><h3>'+esc(u.prenom)+' '+esc(u.nom)+'</h3><p class="m">'+esc(u.email)+'</p><select data-r="'+u.id+'" aria-label="Rôle">'+['apprenant','responsable','gestionnaire','admin'].map(function(r){return '<option value="'+r+'"'+(r==u.role?' selected':'')+'>'+RL[r]+'</option>'}).join('')+'</select></div>'}).join('')}
 var ACT={
 o:async function(i){cid=+i;vCrs()},b:async function(){cid=null;vCrs()},
 p:async function(i,b){await A.q('courses?id=eq.'+i,'PATCH',{publie:b.dataset.v=='1'},'return=minimal');vCrs()},
@@ -57,9 +70,15 @@ add:async function(i){await A.q('lessons','POST',{course_id:cid,position:+i,titr
 del:async function(i){if(confirm('Supprimer cette leçon ?')){await A.q('lessons?id=eq.'+i,'DELETE',null,'return=minimal');vLes()}},
 sv:async function(i){var z=qp($('z'+i).value);if(z.some(function(q){return q.o.length<2||q.a<0||q.a>=q.o.length})){alert('Évaluation invalide : chaque question doit avoir au moins 2 choix et un numéro de bonne réponse valide.');return}
 await A.q('lessons?id=eq.'+i,'PATCH',{titre:$('t'+i).value.trim(),contenu:$('c'+i).value,quiz:z},'return=minimal');alert('Leçon enregistrée.')},
-en:async function(i,b){await A.q('enrollments?id=eq.'+i,'PATCH',{statut:b.dataset.v},'return=minimal');vAcc()},
+en:async function(i,b){var v=b.dataset.v,o={statut:v};if(v=='actif')o.date_activation=new Date().toISOString();if(v=='actif'||v=='demande'){o.date_fin=null;o.mention=null}if(v=='demande')o.date_activation=null;
+await A.q('enrollments?id=eq.'+i,'PATCH',o,'return=minimal');vAcc()},
+fin:async function(i){var m=prompt('Fin de formation validée.\nAppréciation à inscrire sur l\'attestation (facultatif), par exemple « Mention Bien » :','');if(m===null)return;
+await A.q('enrollments?id=eq.'+i,'PATCH',{statut:'termine',date_fin:new Date().toISOString(),mention:m.trim()||null,valide_par:A.uid()},'return=minimal');vAcc()},
+cs:async function(i){await A.q('courses?id=eq.'+i,'PATCH',{titre:$('et'+i).value.trim(),description:$('ed'+i).value.trim(),prix:$('ep'+i).value.trim(),categorie:$('ec'+i).value.trim()||null,niveau:$('en'+i).value.trim()||null,page:$('eg'+i).value.trim()||null},'return=minimal');
+await A.q('course_codes?on_conflict=course_id','POST',{course_id:+i,codes:$('ek'+i).value.trim().toUpperCase()},'resolution=merge-duplicates,return=minimal');alert('Cours enregistré.');vCrs()},
 x:async function(){var k=['created_at','statut','nom','prenom','sexe','niveau_etudes','date_naissance','lieu_naissance','nationalite','telephone','email','formation','niveau_souhaite','duree_jours','date_debut','mode','frais'],c=[k.join(',')].concat(D.map(function(d){return k.map(function(x){return '"'+String(d[x]==null?'':d[x]).replace(/"/g,'""')+'"'}).join(',')})).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+c],{type:'text/csv'}));a.download='inscriptions-fahimta.csv';a.click()}};
-$('V').onclick=function(e){var b=e.target.closest('button[data-a]');if(!b)return;ACT[b.dataset.a](b.dataset.i,b).catch(function(x){alert('Erreur : '+x.message)})};
+$('V').oninput=function(e){if(e.target.id=='fq'){FQ=e.target.value;dAcc()}};
+$('V').onclick=function(e){var f=e.target.closest('button[data-f]');if(f){FS=f.dataset.f;$('FS').querySelectorAll('.pill').forEach(function(p){p.classList.toggle('on',p==f)});dAcc();return}var b=e.target.closest('button[data-a]');if(!b)return;ACT[b.dataset.a](b.dataset.i,b).catch(function(x){alert('Erreur : '+x.message)})};
 $('V').onchange=function(e){var s=e.target;if(s.dataset.s)A.q('inscriptions?id=eq.'+s.dataset.s,'PATCH',{statut:s.value},'return=minimal').catch(function(){alert('Modification non enregistrée.')});
 else if(s.dataset.r)A.q('profiles?id=eq.'+s.dataset.r,'PATCH',{role:s.value},'return=minimal').catch(function(){alert('Modification non enregistrée.')})};
 </script>
