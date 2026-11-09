@@ -35,35 +35,66 @@ else if(A.tok)start();
 $('MD').onclick=function(){mode=mode=='in'?'up':'in';$('SU').hidden=mode=='in';$('nom').required=$('pre').required=mode=='up';$('GO').textContent=mode=='in'?'Se connecter':'Créer mon compte';this.textContent=mode=='in'?'Créer un compte':'J\'ai déjà un compte';$('E').textContent=''};
 $('F').onsubmit=async function(e){e.preventDefault();$('E').textContent='';
 try{if(mode=='in')await A.login($('em').value.trim(),$('pw').value);else await A.signup($('em').value.trim(),$('pw').value,$('nom').value.trim(),$('pre').value.trim());start()}
-catch(x){$('E').textContent=x.message=='confirm'?'Compte créé. Confirmez votre e-mail, puis connectez-vous.':'Erreur : '+x.message}};
+catch(x){$('E').textContent=x.message=='confirm'?'Compte créé. Ouvrez l\'e-mail de confirmation reçu (regardez aussi dans les spams), cliquez sur le lien, puis connectez-vous ici.':tr(x.message)}};
+function tr(m){var T=[[/already registered|already been registered/i,'Un compte existe déjà avec cet e-mail. Cliquez sur « J\'ai déjà un compte » pour vous connecter.'],[/invalid login credentials/i,'E-mail ou mot de passe incorrect.'],[/email not confirmed/i,'Votre e-mail n\'est pas encore confirmé. Cliquez sur le lien reçu par e-mail (regardez aussi dans les spams).'],[/at least 6|weak password/i,'Mot de passe trop court : 6 caractères minimum.'],[/rate limit|too many/i,'Trop de tentatives. Patientez quelques minutes puis réessayez.'],[/signups? (are |is )?(not allowed|disabled)/i,'La création de comptes est désactivée pour le moment. Contactez Fahimta sur WhatsApp au +227 98 27 95 12.'],[/sending confirmation|confirmation email/i,'Le compte n\'a pas pu envoyer l\'e-mail de confirmation. Contactez Fahimta.'],[/database error saving new user/i,'Erreur de la base de données à la création du compte : le script supabase-comptes.sql doit être exécuté dans Supabase.'],[/invalid.*email|email address.*invalid/i,'Adresse e-mail invalide.'],[/failed to fetch|networkerror|load failed/i,'Pas de connexion au serveur. Vérifiez votre connexion Internet.']];for(var i=0;i<T.length;i++)if(T[i][0].test(m))return T[i][1];return 'Erreur : '+m}
 $('OUT').onclick=function(){A.out();location.hash='';location.reload()};
-async function start(){try{var p=(await A.q('profiles?id=eq.'+A.uid()+'&select=prenom,role'))[0]||{};
+async function start(){try{var p=ME=(await A.q('profiles?id=eq.'+A.uid()+'&select=nom,prenom,email,role'))[0]||{};
 $('AU').hidden=true;$('H').hidden=false;
-$('HI').innerHTML='Bonjour '+esc(p.prenom||'')+(p.role&&p.role!='apprenant'?' · <a href="admin.html">Espace équipe</a>':'');route()}
-catch(x){A.out();$('AU').hidden=false;$('E').textContent='Session expirée, reconnectez-vous.'}}
+$('HI').innerHTML='Bonjour '+esc(p.prenom||'')+(p.role&&p.role!='apprenant'?' · <a href="admin.html"><b>Espace formateur</b></a>':'');route()}
+catch(x){A.out();$('AU').hidden=false;$('H').hidden=true;$('E').textContent=/profiles|relation|schema cache|PGRST/i.test(x.message)?'Compte reconnu, mais la base de données n\'est pas prête : le script supabase-comptes.sql doit être exécuté dans Supabase.':/expir|jwt/i.test(x.message)?'Session expirée, reconnectez-vous.':tr(x.message)}}
 window.onhashchange=function(){if(A.tok)route()};
-function route(){if(location.hash.indexOf('#c=')==0)player(+location.hash.slice(3));else{$('P').hidden=true;$('D').hidden=false;cur=0;dash().catch(function(x){$('D').innerHTML='<p class="ko">Erreur : '+esc(x.message)+'</p>'})}}
-async function dash(){var u=A.uid(),r=await Promise.all([A.q('enrollments?user_id=eq.'+u+'&select=statut,course_id,courses(titre)'),A.q('lessons?select=id,course_id'),A.q('progress?user_id=eq.'+u+'&select=lesson_id,course_id,done,score,total'),A.q('courses?publie=eq.true&order=id&select=id,titre,description,prix')]);
-var en=r[0],h='<h2>Mes cours</h2>',mine=en.map(function(e){return e.course_id});
-en.forEach(function(e){var t=e.courses&&e.courses.titre;
-if(e.statut=='actif'){var tot=r[1].filter(function(l){return l.course_id==e.course_id}).length,P=r[2].filter(function(p){return p.course_id==e.course_id}),d=P.filter(function(p){return p.done}).length,Q=P.filter(function(p){return p.total>0}),m=Q.length?Math.round(100*Q.reduce(function(s,p){return s+p.score/p.total},0)/Q.length):null;
-h+='<div class="card"><h3>'+esc(t)+'</h3><div class="bar"><i style="width:'+(tot?Math.round(100*d/tot):0)+'%"></i></div><p class="m">'+d+' / '+tot+' leçons terminées'+(m==null?'':' · score moyen '+m+' %')+'</p><a class="btn" href="#c='+e.course_id+'" style="display:inline-block;text-decoration:none">'+(d?'Continuer':'Commencer')+'</a></div>'}
-else h+='<div class="card"><h3>'+esc(t)+'</h3><p class="m">Demande envoyée. L\'accès est activé par l\'équipe après le paiement (NITA ou AMANA au +227 98 27 95 12).</p></div>'});
-if(!en.length)h+='<p class="m">Vous n\'avez pas encore de cours. Choisissez-en un ci-dessous.</p>';
-var cat=r[3].filter(function(c){return mine.indexOf(c.id)<0});
-h+='<h2>Cours disponibles</h2>'+(cat.map(function(c){return '<div class="card"><h3>'+esc(c.titre)+'</h3><p class="m">'+esc(c.description)+'</p><p><b>'+esc(c.prix)+'</b></p><button class="btn" data-c="'+c.id+'">Demander l\'accès</button></div>'}).join('')||'<p class="m">Aucun autre cours pour le moment.</p>');
-$('D').innerHTML=h}
-$('D').onclick=async function(e){var b=e.target.closest('button[data-c]');if(!b)return;b.disabled=true;
-try{await A.q('enrollments','POST',{user_id:A.uid(),course_id:+b.dataset.c,statut:'demande'},'return=minimal');dash()}catch(x){alert('Demande impossible : '+x.message);b.disabled=false}};
+var ME={},DATA=null,CAT='';
+var NAV=[['mes','Mes cours'],['fini','Cours terminés'],['att','Attestations'],['chercher','Chercher un cours'],['profil','Mon profil']];
+function nav(t){return '<nav class="tabs" aria-label="Tableau de bord">'+NAV.map(function(n){return '<a class="pill'+(n[0]==t?' on':'')+'" href="#'+n[0]+'"'+(n[0]==t?' aria-current="page"':'')+'>'+n[1]+'</a>'}).join('')+'<a class="pill" href="index.html">Page d\'accueil</a></nav>'}
+function route(){var h=location.hash.slice(1);if(h.indexOf('c=')==0){player(+h.slice(2));return}
+$('P').hidden=true;$('D').hidden=false;cur=0;var t=NAV.some(function(n){return n[0]==h})?h:'mes';
+$('D').innerHTML=nav(t)+'<p class="m">Chargement…</p>';load().then(function(){$('D').innerHTML=nav(t)+V[t]()}).catch(function(x){$('D').innerHTML=nav(t)+'<p class="ko">Erreur : '+esc(x.message)+'</p>'})}
+async function load(){var u=A.uid(),r=await Promise.all([A.q('enrollments?user_id=eq.'+u+'&select=*,courses(*)&order=created_at.desc'),A.q('courses?publie=eq.true&order=ordre,titre&select=*'),A.q('progress?user_id=eq.'+u+'&select=lesson_id,course_id,done,score,total'),A.q('lessons?select=id,course_id'),A.q('course_codes?select=*').catch(function(){return []})]);
+DATA={en:r[0],cat:r[1],pg:r[2],ls:r[3],codes:{}};r[4].forEach(function(c){DATA.codes[c.course_id]=c.codes})}
+function dt(s){return s?new Date(s).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):''}
+function prog(cid){var tot=DATA.ls.filter(function(l){return l.course_id==cid}).length;if(!tot)return '';var P=DATA.pg.filter(function(p){return p.course_id==cid}),d=P.filter(function(p){return p.done}).length,Q=P.filter(function(p){return p.total>0}),m=Q.length?Math.round(100*Q.reduce(function(s,p){return s+p.score/p.total},0)/Q.length):null;
+return '<div class="bar"><i style="width:'+Math.round(100*d/tot)+'%"></i></div><p class="m">'+d+' / '+tot+' leçons terminées'+(m==null?'':' · score moyen '+m+' %')+'</p>'}
+function ouvrir(e){var c=e.courses||{},k=(DATA.codes[e.course_id]||'').trim(),h='';
+if(c.page)h+='<a class="btn" style="display:inline-block;text-decoration:none" href="'+esc(c.page)+(k?'#code='+encodeURIComponent(k):'')+'">Ouvrir le cours</a> ';
+if(DATA.ls.some(function(l){return l.course_id==e.course_id}))h+='<a class="btn'+(c.page?' o':'')+'" style="display:inline-block;text-decoration:none" href="#c='+e.course_id+'">Leçons en ligne</a>';
+if(!h)h='<p class="m">Le formateur vous communiquera le support de ce cours.</p>';
+if(k)h+='<p class="m">Code d\'accès : <b>'+esc(k.replace(/\s*,\s*/g,' / '))+'</b></p>';return h}
+var V={
+mes:function(){var L=DATA.en.filter(function(e){return e.statut=='actif'||e.statut=='demande'||e.statut=='refuse'});
+if(!L.length)return '<h2>Mes cours</h2><p class="m">Vous n\'êtes inscrit à aucun cours pour le moment.</p><a class="btn" style="display:inline-block;text-decoration:none" href="#chercher">Chercher un cours</a>';
+return '<h2>Mes cours</h2>'+L.map(function(e){var c=e.courses||{};
+if(e.statut=='actif')return '<div class="card"><h3>'+esc(c.titre)+'</h3><p class="m">Accès actif'+(e.date_activation?' depuis le '+dt(e.date_activation):'')+'</p>'+prog(e.course_id)+ouvrir(e)+'</div>';
+if(e.statut=='refuse')return '<div class="card" style="border-left-color:var(--ko)"><h3>'+esc(c.titre)+'</h3><p class="m">Demande non retenue. Contactez Fahimta pour en savoir plus.</p></div>';
+return '<div class="card" style="border-left-color:var(--mute)"><h3>'+esc(c.titre)+'</h3><p class="m">Demande envoyée le '+dt(e.created_at)+'. L\'accès est activé par le formateur après le paiement (NITA ou AMANA au +227 98 27 95 12).</p><a class="btn o" style="display:inline-block;text-decoration:none" href="https://wa.me/22798279512?text='+encodeURIComponent('Bonjour, je viens de demander l\'accès au cours : '+(c.titre||'')+'. Mon e-mail : '+(ME.email||''))+'">Prévenir sur WhatsApp</a> <button class="btn o" data-x="'+e.id+'">Annuler la demande</button></div>'}).join('')},
+fini:function(){var L=DATA.en.filter(function(e){return e.statut=='termine'});
+if(!L.length)return '<h2>Cours terminés</h2><p class="m">Aucun cours terminé pour le moment. Quand le formateur valide la fin d\'un cours, il apparaît ici avec son attestation.</p>';
+return '<h2>Cours terminés</h2>'+L.map(function(e){var c=e.courses||{};return '<div class="card" style="border-left-color:var(--ok)"><h3>'+esc(c.titre)+'</h3><p class="m">Terminé le '+dt(e.date_fin)+(e.mention?' · '+esc(e.mention):'')+'</p>'+prog(e.course_id)+'<a class="btn" style="display:inline-block;text-decoration:none" href="attestation.html?e='+e.id+'">Attestation</a> '+ouvrir(e).replace('class="btn"','class="btn o"')+'</div>'}).join('')},
+att:function(){var L=DATA.en.filter(function(e){return e.statut=='termine'});
+return '<h2>Attestations de formation</h2>'+(L.length?'<p class="m">Ouvrez une attestation pour l\'imprimer ou l\'enregistrer en PDF. Vérifiez d\'abord que votre nom est correct dans <a href="#profil">Mon profil</a>.</p>'+L.map(function(e){return '<div class="card" style="border-left-color:var(--ok)"><h3>'+esc((e.courses||{}).titre)+'</h3><p class="m">Attestation n° FSI-'+String(e.id).padStart(5,'0')+' · délivrée le '+dt(e.date_fin)+'</p><a class="btn" style="display:inline-block;text-decoration:none" href="attestation.html?e='+e.id+'">Voir et imprimer</a></div>'}).join(''):'<p class="m">Vous n\'avez pas encore d\'attestation. Elle est délivrée quand le formateur valide la fin d\'un cours.</p>')},
+chercher:function(){var cats=[];DATA.cat.forEach(function(c){if(c.categorie&&cats.indexOf(c.categorie)<0)cats.push(c.categorie)});
+return '<h2>Chercher un cours</h2><div class="srch"><input id="S" type="search" placeholder="Rechercher un cours (ex. Excel, SPSS, cartographie)" aria-label="Rechercher un cours"></div><div class="pills" id="CF">'+['Tous'].concat(cats).map(function(c){return '<button class="pill'+((c=='Tous'?'':c)==CAT?' on':'')+'" data-k="'+esc(c=='Tous'?'':c)+'">'+esc(c)+'</button>'}).join('')+'</div><div id="RS">'+res('')+'</div>'},
+profil:function(){return '<h2>Mon profil</h2><p class="m">Votre nom apparaît sur vos attestations. Vérifiez l\'orthographe.</p><form id="PF" class="g"><label>Nom<input id="pn" value="'+esc(ME.nom||'')+'" required></label><label>Prénom<input id="pp" value="'+esc(ME.prenom||'')+'" required></label><p class="m">E-mail : '+esc(ME.email||'')+'</p><button class="btn">Enregistrer</button><p class="m" id="PM" role="status"></p></form>'}};
+function res(q){q=(q||'').toLowerCase();var st={};DATA.en.forEach(function(e){st[e.course_id]=e.statut});
+var L=DATA.cat.filter(function(c){return (!CAT||c.categorie==CAT)&&(!q||[c.titre,c.description,c.categorie].join(' ').toLowerCase().indexOf(q)>-1)});
+if(!L.length)return '<p class="m">Aucun cours ne correspond à votre recherche.</p>';
+return L.map(function(c){var s=st[c.id],b=s=='actif'?'<a class="btn o" style="display:inline-block;text-decoration:none" href="#mes">Déjà inscrit · Mes cours</a>':s=='termine'?'<a class="btn o" style="display:inline-block;text-decoration:none" href="#fini">Cours terminé</a>':s=='demande'?'<span class="m"><b>Demande envoyée</b>, en attente de validation</span>':s=='refuse'?'<span class="m">Demande non retenue</span>':'<button class="btn" data-c="'+c.id+'">S\'inscrire à ce cours</button>';
+return '<div class="card"><h3>'+esc(c.titre)+'</h3><p class="m">'+esc([c.categorie,c.niveau].filter(Boolean).join(' · '))+'</p><p class="m">'+esc(c.description)+'</p><p><b>'+esc(c.prix)+'</b></p>'+b+' <a class="m" href="cours.html">Voir le programme</a></div>'}).join('')}
+$('D').oninput=function(e){if(e.target.id=='S')$('RS').innerHTML=res(e.target.value)};
+$('D').onsubmit=async function(e){if(e.target.id!='PF')return;e.preventDefault();$('PM').textContent='Enregistrement…';
+try{await A.q('rpc/maj_mon_nom','POST',{p_nom:$('pn').value.trim(),p_prenom:$('pp').value.trim()},'return=minimal');ME.nom=$('pn').value.trim();ME.prenom=$('pp').value.trim();$('HI').firstChild.textContent='Bonjour '+ME.prenom;$('PM').textContent='Nom enregistré.'}catch(x){$('PM').textContent='Erreur : '+x.message}};
+$('D').onclick=async function(e){var k=e.target.closest('button[data-k]');if(k){CAT=k.dataset.k;$('CF').querySelectorAll('.pill').forEach(function(p){p.classList.toggle('on',p==k)});$('RS').innerHTML=res($('S').value);return}
+var b=e.target.closest('button[data-c]');if(b){b.disabled=true;b.textContent='Envoi…';
+try{await A.q('enrollments','POST',{user_id:A.uid(),course_id:+b.dataset.c,statut:'demande'},'return=minimal');await load();$('RS').innerHTML=res($('S').value);alert('Demande envoyée ! Retrouvez-la dans « Mes cours ». L\'accès est activé par le formateur après le paiement.')}catch(x){alert('Inscription impossible : '+x.message);b.disabled=false;b.textContent='S\'inscrire à ce cours'}return}
+var x=e.target.closest('button[data-x]');if(x&&confirm('Annuler cette demande d\'inscription ?')){try{await A.q('enrollments?id=eq.'+x.dataset.x,'DELETE',null,'return=minimal');route()}catch(y){alert('Annulation impossible : '+y.message)}}};
 function fmt(t){return '<p>'+esc(t).replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>')+'</p>'}
 async function player(id){cid=id;$('D').hidden=true;$('P').hidden=false;
 try{var r=await Promise.all([A.q('lessons?course_id=eq.'+id+'&order=position&select=*'),A.q('progress?course_id=eq.'+id+'&user_id=eq.'+A.uid()+'&select=*')]);L=r[0];PG={};r[1].forEach(function(p){PG[p.lesson_id]=p});
-if(!L.length){$('P').innerHTML='<p><a href="#">← Mes cours</a></p><p class="m">Aucune leçon disponible : accès non activé ou cours vide.</p>';return}
+if(!L.length){$('P').innerHTML='<p><a href="#mes">← Mes cours</a></p><p class="m">Aucune leçon disponible : accès non activé ou cours vide.</p>';return}
 cur=0;for(var i=0;i<L.length;i++)if(!PG[L[i].id]||!PG[L[i].id].done){cur=i;break}draw()}
 catch(x){$('P').innerHTML='<p class="ko">Erreur : '+esc(x.message)+'</p>'}}
 function nd(){return L.filter(function(l){return PG[l.id]&&PG[l.id].done}).length}
 function draw(){var l=L[cur],z=l.quiz||[],g=PG[l.id],d=nd();
-var h='<p><a href="#">← Mes cours</a></p><div class="bar"><i style="width:'+Math.round(100*d/L.length)+'%"></i></div><p class="m" id="CT">'+d+' / '+L.length+' leçons terminées</p><div class="pills">'+L.map(function(x,i){return '<button class="pill'+(i==cur?' on':'')+'" data-i="'+i+'">'+(PG[x.id]&&PG[x.id].done?'✓ ':'')+(i+1)+'</button>'}).join('')+'</div><h2>'+esc(l.titre)+'</h2>'+fmt(l.contenu);
+var h='<p><a href="#mes">← Mes cours</a></p><div class="bar"><i style="width:'+Math.round(100*d/L.length)+'%"></i></div><p class="m" id="CT">'+d+' / '+L.length+' leçons terminées</p><div class="pills">'+L.map(function(x,i){return '<button class="pill'+(i==cur?' on':'')+'" data-i="'+i+'">'+(PG[x.id]&&PG[x.id].done?'✓ ':'')+(i+1)+'</button>'}).join('')+'</div><h2>'+esc(l.titre)+'</h2>'+fmt(l.contenu);
 if(z.length)h+='<h2>Évaluation</h2>'+z.map(function(q,i){return '<div class="q"><b>'+(i+1)+'. '+esc(q.q)+'</b>'+q.o.map(function(o,j){return '<label class="o2"><input type="radio" name="q'+i+'" value="'+j+'"> '+esc(o)+'</label>'}).join('')+'<p class="m" id="e'+i+'"></p></div>'}).join('')+'<button class="btn" id="V">Valider mes réponses</button><p class="m" id="SC">'+(g&&g.total?'Dernier score : '+g.score+' / '+g.total:'')+'</p>';
 else h+='<button class="btn" id="V">Marquer comme terminée</button>';
 $('P').innerHTML=h}

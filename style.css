@@ -20,3 +20,5 @@ label{display:block;font-weight:500;font-size:15px}
 .pills{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.pill{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:16px;padding:6px 12px;font:inherit;cursor:pointer}.pill.on{background:var(--c);color:var(--bg);border-color:var(--c)}
 .o2{display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:var(--card);border-radius:6px;padding:10px;margin:6px 0;font-weight:400}.o2 input{width:auto;margin:0}
 .q{margin:14px 0}.srch{display:flex;gap:8px;flex-wrap:wrap}.srch input{flex:1;min-width:150px}
+a.pill{text-decoration:none;display:inline-block}
+.tabs a.pill{font-size:15px}

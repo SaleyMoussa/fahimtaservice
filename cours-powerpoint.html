@@ -55,7 +55,7 @@ details.fi>summary{cursor:pointer;padding:10px 0;font-weight:600}
 <form id="G"><input id="C" autocomplete="off" autocapitalize="characters" placeholder="Code d'accès" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:6px;font:inherit;background:var(--card);color:var(--ink)">
 <button class="o" type="submit" style="text-align:center;font-weight:600;margin-top:10px">Ouvrir le cours</button></form>
 <p id="X" class="e" style="color:var(--ko)" role="alert"></p>
-<p class="e">Pas de code ? <a href="https://wa.me/22798279512?text=Bonjour%2C%20je%20souhaite%20un%20code%20d%27acc%C3%A8s%20pour%20le%20cours%20%3A%20PowerPoint" style="color:inherit">Contactez-nous sur WhatsApp</a>.</p></div>
+<p class="e">Inscrit dans l'<a href="espace.html" style="color:inherit">Espace apprenant</a> ? Ouvrez le cours depuis « Mes cours » : le code s'applique tout seul. Pas de code ? <a href="https://wa.me/22798279512?text=Bonjour%2C%20je%20souhaite%20un%20code%20d%27acc%C3%A8s%20pour%20le%20cours%20%3A%20PowerPoint" style="color:inherit">Contactez-nous sur WhatsApp</a>.</p></div>
 <div id="L"></div>
 <div id="XL"></div>
 <div class="fin" id="F" hidden><h2>Projet final</h2>Créez une présentation de 10 diapositives : titre, plan, 6 diapositives de contenu avec au moins une image, un schéma SmartArt et un graphique, puis conclusion. Ajoutez des notes, appliquez une transition unique et exportez en PDF. Envoyez les deux fichiers à Fahimta pour une correction.</div>
@@ -96,6 +96,8 @@ if(r[1].status=='fulfilled'){RX(JSON.parse(r[1].value));U.X=1;n++}
 if(U.L&&U.X){document.getElementById('K').hidden=true;x.textContent=''}
 else if(n){document.getElementById('C').value='';x.style.color='var(--mute)';x.textContent=(U.L?'Leçons ouvertes. ':'Exercices ouverts. ')+'Entrez votre autre code pour ouvrir '+(U.L?'les exercices d\'application.':'les leçons.')}
 else{x.style.color='';x.textContent='Code incorrect. Vérifiez et réessayez.'}})});
+(function(){var m=location.hash.match(/code=([^&]+)/);if(!m)return;history.replaceState(null,'',location.pathname+location.search);
+decodeURIComponent(m[1]).split(',').map(function(c){return c.trim()}).filter(Boolean).forEach(function(c,i){setTimeout(function(){document.getElementById('C').value=c;document.getElementById('G').requestSubmit()},i*400)})})();
 </script>
 </body>
 </html>
