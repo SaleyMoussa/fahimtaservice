@@ -1,0 +1,76 @@
+# Fabrique l'application Android (fichier .apk) et la publie dans les « Releases » du dépôt.
+# Lien de téléchargement permanent :
+#   https://github.com/SaleyMoussa/fahimtaservice/releases/latest/download/fahimta-cours.apk
+name: Application Android
+
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      # Clé de signature : toujours la même, sinon les mises à jour ne s'installent pas
+      # par-dessus l'ancienne version. Elle vient des secrets du dépôt
+      # (Settings > Secrets and variables > Actions).
+      - name: Préparer la clé de signature
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/fahimta.jks"
+            echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/fahimta.jks" >> "$GITHUB_ENV"
+            echo "ANDROID_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "SIGNATURE=officielle" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Secrets de signature absents : APK de TEST signé avec une clé temporaire."
+            echo "SIGNATURE=test" >> "$GITHUB_ENV"
+          fi
+
+      - name: Fabriquer l'APK
+        run: gradle -p android assembleRelease --no-daemon --stacktrace
+
+      - name: Renommer
+        run: |
+          mkdir -p sortie
+          cp android/app/build/outputs/apk/release/app-release.apk sortie/fahimta-cours.apk
+          ls -la sortie
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fahimta-cours-apk
+          path: sortie/fahimta-cours.apk
+
+      - name: Publier dans les Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-v1.0.${{ github.run_number }}
+          name: Fahimta Cours 1.0.${{ github.run_number }}${{ env.SIGNATURE == 'test' && ' (version de test)' || '' }}
+          make_latest: ${{ env.SIGNATURE == 'officielle' && 'true' || 'false' }}
+          prerelease: ${{ env.SIGNATURE == 'test' }}
+          files: sortie/fahimta-cours.apk
+          body: |
+            Application Android Fahimta Cours.
+            Installation : téléchargez fahimta-cours.apk sur le téléphone, ouvrez-le
+            et autorisez « Installer des applications inconnues » si Android le demande.

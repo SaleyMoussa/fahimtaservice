@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Adresse du site affiché par l'application
+def siteUrl = 'https://saleymoussa.github.io/fahimtaservice/'
+
+android {
+    namespace 'com.fahimta.cours'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.fahimta.cours'
+        minSdk 21
+        targetSdk 34
+        // Numéro de version : augmente automatiquement à chaque fabrication sur GitHub
+        versionCode((System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger())
+        versionName "1.0.${System.getenv('GITHUB_RUN_NUMBER') ?: '0'}"
+        buildConfigField 'String', 'SITE_URL', "\"${siteUrl}\""
+        buildConfigField 'String', 'SITE_HOST', "\"${new URI(siteUrl).host}\""
+    }
+
+    buildFeatures { buildConfig true }
+
+    signingConfigs {
+        release {
+            // Clé de signature fournie par les secrets GitHub (toujours la même clé,
+            // sinon Android refuse d'installer les mises à jour par-dessus)
+            def ks = System.getenv('ANDROID_KEYSTORE_FILE')
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias 'fahimta'
+                keyPassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig System.getenv('ANDROID_KEYSTORE_FILE') ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

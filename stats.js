@@ -7,3 +7,5 @@ var r='';try{r=document.referrer?new URL(document.referrer).hostname:''}catch(e)
 fetch(window.SB_URL+'/rest/v1/visites',{method:'POST',keepalive:true,headers:{apikey:window.SB_KEY,Authorization:'Bearer '+window.SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},
 body:JSON.stringify({page:(location.pathname.split('/').pop()||'index.html').slice(0,190),visiteur:v,provenance:r.slice(0,290)||null})}).catch(function(){})
 }catch(e){}})();
+// Application installable (hors connexion pour les pages déjà ouvertes)
+if('serviceWorker' in navigator&&location.protocol=='https:'){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}

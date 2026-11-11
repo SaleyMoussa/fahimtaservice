@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="videos.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
 <style>
+[hidden]{display:none!important}
 :root{--bg:#f6f8fb;--card:#fff;--ink:#14213d;--mute:#56627a;--line:#dbe2ee;--word:#2b579a;--excel:#1d7a46;--ppt:#c8501f;--out:#0f78d4;--vio:#7a4fb5;--btn:#14213d;--btnt:#fff;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#162238;--ink:#eaf0fb;--mute:#9aa8c2;--line:#27385a;--word:#6d9be8;--excel:#4cc080;--ppt:#f08a5d;--out:#5aaef0;--vio:#b08ae6;--btn:#eaf0fb;--btnt:#0e1626}}
@@ -54,7 +55,14 @@ footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 .cc b{font:800 22px "Bricolage Grotesque",sans-serif;color:var(--a)}.cc span{color:var(--mute);font-size:14px;flex:1}.cc em{font-style:normal;font-weight:600;font-size:14px;margin-top:6px}
 .cc:hover,.cc:focus-visible{border-color:var(--a)}.cc:focus-visible{outline:3px solid var(--out);outline-offset:2px}
 #VID{--c:var(--word)}
+.app{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px;max-width:560px}
+.appc{display:flex;gap:14px;align-items:center}.appc img{border-radius:16px;border:1px solid var(--line)}.appc h3{font-size:20px}.appc p{margin:2px 0 0;color:var(--mute);font-size:14px}
+.app details{font-size:15px;color:var(--mute)}.app summary{cursor:pointer;font-weight:600;color:var(--ink)}.app ol{padding-left:20px}
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14213d">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
 <div class="w">
@@ -123,6 +131,17 @@ footer{padding:30px 0 40px;color:var(--mute);font-size:14px;border-top:1px solid
 <p class="sub" style="margin-top:18px;font-size:15px">Formateur ? <a href="admin.html">Accéder à l'Espace formateur</a></p>
 </section>
 
+<section id="application">
+<h2>Application mobile</h2>
+<p class="sub">Vos cours, fiches et attestations dans une application sur votre téléphone.</p>
+<div class="app">
+<div class="appc"><img src="icons/icon-192.png" alt="" width="72" height="72"><div><h3>Fahimta Cours pour Android</h3><p>Gratuite · environ 2 Mo · Android 5 ou plus récent</p></div></div>
+<a class="btn" href="https://github.com/SaleyMoussa/fahimtaservice/releases/latest/download/fahimta-cours.apk" id="APK">⬇ Télécharger l'application Android</a>
+<button class="btn o" id="PWA" type="button" hidden>Installer sans télécharger</button>
+<details><summary>Comment l'installer ?</summary><ol><li>Touchez « Télécharger l'application Android » et attendez la fin du téléchargement.</li><li>Ouvrez le fichier <b>fahimta-cours.apk</b> (notification ou dossier Téléchargements).</li><li>Si Android affiche « Installer des applications inconnues », touchez <b>Paramètres</b>, activez <b>Autoriser cette source</b>, puis revenez et touchez <b>Installer</b>.</li><li>Ouvrez <b>Fahimta Cours</b> et connectez-vous à votre Espace apprenant.</li></ol><p><b>iPhone :</b> ouvrez ce site dans Safari, touchez le bouton Partager, puis « Sur l'écran d'accueil ».</p></details>
+</div>
+</section>
+
 <section id="videos" style="padding-top:0"><div id="VID" hidden></div></section>
 
 <section id="reprographie">
@@ -185,5 +204,10 @@ window.open('https://wa.me/22798279512?text='+encodeURIComponent(m),'_blank');
 <script src="config.js"></script>
 <script src="stats.js"></script>
 <script src="videos.js"></script>
+<script>
+(function(){var a=/FahimtaApp/.test(navigator.userAgent),s=document.getElementById('application');if(a&&s){s.hidden=true;return}
+var d=null,b=document.getElementById('PWA');addEventListener('beforeinstallprompt',function(e){e.preventDefault();d=e;b.hidden=false});
+b.onclick=function(){if(d){d.prompt();d=null;b.hidden=true}};if(/iPhone|iPad/.test(navigator.userAgent))document.getElementById('APK').hidden=true})();
+</script>
 </body>
 </html>
