@@ -220,6 +220,9 @@ select v.* from (values
 ) as v(titre, description, prix, categorie, niveau, page, ordre, publie)
 where not exists (select 1 from public.courses c where c.titre = v.titre);
 
+-- Pages de cours ajoutées plus tard
+update public.courses set page = 'cours-windows.html' where titre = 'Windows' and page is null;
+
 -- 5. STATISTIQUES DE VISITES
 create table if not exists public.visites (
   id bigint generated always as identity primary key,
